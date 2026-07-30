@@ -1,0 +1,533 @@
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--primary:#1769e0;--primary-dark:#0f4fae;--primary-light:#eaf3ff;--background:#f3f6fa;--surface:#fff;--text:#1f2937;--text-light:#6b7280;--border:#d8dee8;--error:#dc2626;--radius-large:20px;--radius-medium:14px;--radius-small:10px;--shadow:0 8px 30px rgba(15,23,42,.08)}
+body{min-height:100vh;background:var(--background);color:var(--text);font-family:"Malgun Gothic",Arial,sans-serif;line-height:1.6}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.app-container{width:100%;max-width:720px;min-height:100vh;margin:0 auto;background:var(--surface)}
+.app-header{padding:28px 22px 24px;background:linear-gradient(145deg,#0f4fae 0%,#1769e0 55%,#3b82f6 100%);color:#fff}
+.company-brand{display:flex;align-items:center;gap:12px;margin-bottom:26px}.company-symbol{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border:2px solid rgba(255,255,255,.65);border-radius:14px;background:rgba(255,255,255,.15);font-size:24px;font-weight:800}.company-name{display:flex;flex-direction:column}.company-name strong{font-size:18px}.company-name span{font-size:12px;color:rgba(255,255,255,.78)}.app-header h1{font-size:28px}.header-description{margin-top:7px;color:rgba(255,255,255,.82);font-size:14px}
+.progress-section{padding:18px 22px;border-bottom:1px solid var(--border)}.progress-info{display:flex;justify-content:space-between;margin-bottom:10px;font-size:14px}.progress-info>span{color:var(--primary);font-weight:700}.progress-info strong{color:var(--text-light);font-size:13px}.progress-bar{height:8px;border-radius:999px;background:#e8edf4;overflow:hidden}.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--primary-dark),#3b82f6);transition:width .3s}
+.form-container{padding:24px 20px 32px}.form-step{display:none}.form-step.active{display:block}.section-heading{margin-bottom:28px}.step-badge{display:inline-flex;padding:4px 10px;border-radius:999px;background:var(--primary-light);color:var(--primary);font-size:12px;font-weight:800}.section-heading h2{margin-top:10px;font-size:25px}.section-heading p{margin-top:6px;color:var(--text-light);font-size:14px}
+.form-group{margin-bottom:23px;border:0}.form-group label,.form-group legend{display:block;margin-bottom:9px;font-size:15px;font-weight:700}.required-mark{color:var(--error)}
+input[type=text],input[type=tel],input[type=date],input[type=number],select,textarea{width:100%;min-height:52px;padding:13px 14px;border:1px solid var(--border);border-radius:var(--radius-small);outline:none;background:#fff;font-size:16px}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(23,105,224,.12)}input[readonly]{background:#f7f9fc;color:var(--text-light)}
+.field-error{min-height:18px;margin-top:5px;color:var(--error);font-size:12px}.input-with-unit{display:flex;align-items:center;gap:10px}.input-with-unit input{flex:1}.input-with-unit span{color:var(--text-light)}
+.choice-grid{display:grid;gap:10px}.two-columns{grid-template-columns:repeat(2,minmax(0,1fr))}.three-columns{grid-template-columns:repeat(3,minmax(0,1fr))}
+.choice-card{position:relative;margin:0!important}.choice-card input{position:absolute;width:1px;height:1px;opacity:0}.choice-card span{display:flex;align-items:center;justify-content:center;min-height:50px;padding:10px;border:1px solid var(--border);border-radius:var(--radius-small);font-weight:600;text-align:center}.choice-card input:checked+span{border-color:var(--primary);background:var(--primary-light);color:var(--primary)}
+.hidden{display:none!important}.form-navigation{display:flex;gap:10px;margin-top:34px}.button{min-height:54px;padding:13px 20px;border:0;border-radius:12px;font-size:16px;font-weight:800}.button-primary{width:100%;background:var(--primary);color:#fff}.button-secondary{flex:0 0 34%;border:1px solid var(--border);background:#fff}.form-navigation .button-primary{flex:1}
+.sub-section{margin-bottom:34px}.sub-section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.sub-section-title h3{font-size:19px}.sub-section-title span,.section-notice,.career-card-header span{color:var(--text-light);font-size:12px}.section-notice{margin:-6px 0 16px}.form-row{display:grid;gap:14px}.form-row.two-columns{grid-template-columns:repeat(2,minmax(0,1fr))}
+.career-card{margin-bottom:18px;padding:20px 18px 2px;border:1px solid var(--border);border-radius:var(--radius-medium);background:#fbfcfe}.career-card-header{display:flex;justify-content:space-between;margin-bottom:20px}.career-card-header strong{color:var(--primary)}
+.app-footer{padding:22px;border-top:1px solid var(--border);background:#f8fafc;text-align:center}.app-footer p{color:var(--text-light);font-size:12px}
+@media(max-width:520px){.form-row.two-columns,.three-columns{grid-template-columns:1fr}}
+
+
+/* V1.0.4 - STEP 3 및 자동 임시저장 */
+textarea {
+  resize: vertical;
+}
+
+.field-hint {
+  margin: -3px 0 10px;
+  color: var(--text-light);
+  font-size: 12px;
+}
+
+.save-status {
+  margin-top: 8px;
+  padding: 12px 14px;
+  border: 1px solid #cfe0f8;
+  border-radius: 10px;
+  background: #f4f8fe;
+  color: #42628a;
+  font-size: 13px;
+  text-align: center;
+}
+
+.save-status.saved {
+  border-color: #b9e6ca;
+  background: #f0fbf4;
+  color: #247246;
+}
+
+.choice-card input[type="checkbox"]:checked + span {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+@media (max-width: 520px) {
+  .form-row.two-columns > fieldset.form-group {
+    margin-bottom: 10px;
+  }
+}
+
+
+/* V1.0.5 - 모바일 세로형 UI 및 STEP 4 */
+.field-label-note {
+  color: var(--text-light);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.mobile-stack {
+  grid-template-columns: 1fr !important;
+}
+
+.vision-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.mini-label {
+  margin-bottom: 7px !important;
+  color: var(--text-light) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.insurance-panel {
+  padding: 18px 16px 8px;
+  border: 1px solid #f0d69a;
+  border-radius: 14px;
+  background: #fffaf0;
+}
+
+.insurance-panel legend {
+  padding: 0 4px;
+}
+
+.insurance-guide {
+  margin: 2px 0 14px;
+  color: #7c5b20;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.insurance-options {
+  grid-template-columns: 1fr !important;
+}
+
+.insurance-choice span {
+  justify-content: flex-start;
+  min-height: 58px;
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.information-box {
+  margin-top: 18px;
+  padding: 15px 16px;
+  border: 1px solid #bdd5ff;
+  border-radius: 12px;
+  background: #f1f6ff;
+}
+
+.information-box strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--primary);
+  font-size: 15px;
+}
+
+.information-box p {
+  color: #4c6485;
+  font-size: 13px;
+}
+
+.mobile-navigation {
+  flex-direction: column;
+}
+
+.mobile-navigation .button,
+.mobile-navigation .button-secondary,
+.mobile-navigation .button-primary {
+  width: 100%;
+  flex: none;
+}
+
+.mobile-navigation .button {
+  min-height: 58px;
+}
+
+@media screen and (max-width: 720px) {
+  .form-container {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .choice-grid.two-columns,
+  .choice-grid.three-columns,
+  .form-row.two-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .choice-card span {
+    min-height: 56px;
+    padding: 13px 14px;
+  }
+
+  .career-card {
+    padding: 18px 14px 2px;
+  }
+
+  .form-navigation {
+    flex-direction: column;
+  }
+
+  .form-navigation .button,
+  .form-navigation .button-secondary,
+  .form-navigation .button-primary {
+    width: 100%;
+    flex: none;
+  }
+
+  input[type="text"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="number"],
+  select,
+  textarea {
+    min-height: 56px;
+  }
+
+  textarea {
+    min-height: 112px;
+  }
+}
+
+
+/* V1.0.6 - 통근버스 탑승 장소 */
+#shuttleBoardingGroup {
+  padding: 16px;
+  border: 1px solid #cfe0f8;
+  border-radius: 12px;
+  background: #f7faff;
+}
+
+/* V1.0.8 - STEP 5 개인정보 동의 및 전자서명 */
+.consent-panel,
+.applicant-confirmation,
+.signature-section {
+  margin-bottom: 22px;
+  padding: 18px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.consent-panel {
+  border-color: #bdd5ff;
+  background: #f8fbff;
+}
+
+.consent-heading-row,
+.signature-heading-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.consent-heading-row h3,
+.applicant-confirmation h3,
+.signature-heading-row h3 {
+  font-size: 18px;
+}
+
+.consent-heading-row p,
+.signature-heading-row p {
+  margin-top: 4px;
+  color: var(--text-light);
+  font-size: 12px;
+}
+
+.required-chip {
+  flex: 0 0 auto;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.consent-detail-button,
+.signature-clear-button {
+  border: 1px solid #b9cff0;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.consent-detail-button {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 16px;
+}
+
+.consent-details {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 10px;
+  background: #eef5ff;
+}
+
+.consent-details dl {
+  display: grid;
+  gap: 10px;
+}
+
+.consent-details dl > div {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 8px;
+}
+
+.consent-details dt {
+  color: #274c7c;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.consent-details dd,
+.consent-note {
+  color: #4b6482;
+  font-size: 12px;
+}
+
+.consent-note {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #d3e2f7;
+}
+
+.agreement-check {
+  display: flex !important;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 58px;
+  margin-top: 16px !important;
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.agreement-check input {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  accent-color: var(--primary);
+}
+
+.agreement-check span {
+  line-height: 1.5;
+}
+
+.applicant-confirmation h3 {
+  margin-bottom: 14px;
+}
+
+.confirmation-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.confirmation-grid > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 11px 13px;
+  border-radius: 9px;
+  background: #f7f9fc;
+}
+
+.confirmation-grid span {
+  color: var(--text-light);
+  font-size: 13px;
+}
+
+.confirmation-grid strong {
+  text-align: right;
+  word-break: break-all;
+}
+
+.signature-clear-button {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 8px 12px;
+}
+
+.signature-pad-wrap {
+  position: relative;
+  width: 100%;
+  height: 210px;
+  margin-top: 16px;
+  overflow: hidden;
+  border: 2px dashed #aebdd0;
+  border-radius: 12px;
+  background: #fff;
+  touch-action: none;
+}
+
+#signatureCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.signature-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #9aa8ba;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.signature-placeholder.hidden {
+  display: none;
+}
+
+.signature-information {
+  margin-top: 0;
+}
+
+@media screen and (max-width: 520px) {
+  .consent-heading-row,
+  .signature-heading-row {
+    flex-direction: column;
+  }
+
+  .signature-clear-button {
+    width: 100%;
+  }
+
+  .signature-pad-wrap {
+    height: 230px;
+  }
+
+  .consent-details dl > div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
+
+/* V1.0.9 - STEP 6 최종 확인 */
+.preview-notice {
+  margin-bottom: 18px;
+  padding: 15px 16px;
+  border: 1px solid #cfe0ff;
+  border-radius: 12px;
+  background: #f3f7ff;
+}
+.preview-notice strong { display:block; margin-bottom:5px; color:#164da8; }
+.preview-notice p { margin:0; color:var(--text-light); font-size:14px; line-height:1.55; }
+.final-preview { display:grid; gap:16px; }
+.preview-section,
+.preview-signature-card {
+  overflow:hidden;
+  border:1px solid var(--border-color);
+  border-radius:14px;
+  background:#fff;
+}
+.preview-card-heading {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:15px 16px;
+  border-bottom:1px solid var(--border-color);
+  background:#f8fafc;
+}
+.preview-card-heading h3 { margin:0; font-size:17px; }
+.preview-list { margin:0; }
+.preview-row {
+  display:grid;
+  grid-template-columns:minmax(105px, 32%) 1fr;
+  gap:14px;
+  padding:12px 16px;
+  border-bottom:1px solid #edf1f6;
+}
+.preview-row:last-child { border-bottom:0; }
+.preview-row dt { color:var(--text-light); font-size:14px; }
+.preview-row dd { margin:0; color:var(--text-color); font-weight:600; text-align:right; white-space:pre-wrap; word-break:break-word; }
+.preview-empty { color:#97a3b4; font-weight:400; }
+.preview-career-item { padding:14px 16px; border-bottom:1px solid #edf1f6; }
+.preview-career-item:last-child { border-bottom:0; }
+.preview-career-item strong { display:block; margin-bottom:8px; color:#195fc5; }
+.preview-career-summary { margin:0; color:var(--text-color); line-height:1.65; white-space:pre-wrap; }
+.preview-status-chip {
+  flex:0 0 auto;
+  padding:5px 9px;
+  border-radius:999px;
+  background:#e7f7ed;
+  color:#13713a;
+  font-size:12px;
+  font-weight:700;
+}
+.preview-signature-card { margin-top:16px; }
+.preview-signature-box {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:155px;
+  margin:16px;
+  border:1px dashed #b8c5d6;
+  border-radius:10px;
+  background:#fff;
+}
+.preview-signature-box img { display:block; max-width:100%; max-height:145px; object-fit:contain; }
+.preview-signed-at { margin:0 16px 16px; color:var(--text-light); font-size:13px; text-align:right; }
+.final-navigation { margin-top:20px; }
+.button.is-loading { opacity:.7; pointer-events:none; }
+
+@media screen and (max-width:520px) {
+  .preview-row { grid-template-columns:1fr; gap:5px; }
+  .preview-row dd { text-align:left; }
+  .preview-card-heading { align-items:flex-start; }
+}
+
+
+/* V1.0.12 - 희망 고용 방식 카드 및 안내문 개선 */
+.insurance-choice span {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.insurance-choice span strong {
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.insurance-choice span small {
+  color: var(--text-light);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+.insurance-information {
+  border-color: #f0d69a;
+  background: #fffaf0;
+}
+
+.insurance-information strong {
+  color: #8a5a00;
+}
+
+.insurance-information p {
+  color: #6f5a32;
+}

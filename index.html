@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<!-- RecruitSystem-Pro V1.0.13: Google Sheets 제출 연동 준비 -->
+<!-- RecruitSystem-Pro V1.0.6 FIX -->
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="description" content="(주)하늘컴퍼니 모바일 입사지원서">
+  <title>입사지원서 | (주)하늘컴퍼니</title>
+  <link rel="stylesheet" href="./css/style.css?v=1.0.13">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="company-brand">
+        <div class="company-symbol">H</div>
+        <div class="company-name">
+          <strong>(주)하늘컴퍼니</strong>
+          <span>채용관리 시스템 1.0</span>
+        </div>
+      </div>
+      <h1>모바일 입사지원서</h1>
+      <p class="header-description">아래 내용을 정확하게 작성해 주세요.</p>
+    </header>
+
+    <section class="progress-section">
+      <div class="progress-info">
+        <span id="currentStepText">기본정보</span>
+        <strong><span id="currentStepNumber">1</span> / <span id="totalStepNumber">6</span></strong>
+      </div>
+      <div class="progress-bar">
+        <div id="progressBarFill" class="progress-bar-fill" style="width:16.66%"></div>
+      </div>
+    </section>
+
+    <main class="form-container">
+      <form id="applicationForm" novalidate>
+
+        <section class="form-step active" data-step="1">
+          <div class="section-heading">
+            <span class="step-badge">STEP 1</span>
+            <h2>기본정보</h2>
+            <p>지원자 본인의 정보를 입력해 주세요.</p>
+          </div>
+
+          <div class="form-group">
+            <label for="koreanName">성명 <span class="required-mark">*</span></label>
+            <input type="text" id="koreanName" placeholder="한글 이름을 입력해 주세요" required>
+            <p class="field-error" id="koreanNameError"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="englishName">영문 성명</label>
+            <input type="text" id="englishName" placeholder="여권 또는 외국인등록증 기준">
+          </div>
+
+          <div class="form-group">
+            <label for="phone">휴대전화 <span class="required-mark">*</span></label>
+            <input type="tel" id="phone" placeholder="010-1234-5678" maxlength="13" required>
+            <p class="field-error" id="phoneError"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="birthDate">생년월일 <span class="required-mark">*</span></label>
+            <input type="text" id="birthDate" inputmode="numeric" maxlength="10" placeholder="YYYY-MM-DD" autocomplete="bday" required>
+            <p class="field-error" id="birthDateError"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="age">나이</label>
+            <div class="input-with-unit">
+              <input type="number" id="age" placeholder="자동 계산" readonly>
+              <span>세</span>
+            </div>
+          </div>
+
+          <fieldset class="form-group">
+            <legend>성별 <span class="required-mark">*</span></legend>
+            <div class="choice-grid two-columns">
+              <label class="choice-card"><input type="radio" name="gender" value="남성"><span>남성</span></label>
+              <label class="choice-card"><input type="radio" name="gender" value="여성"><span>여성</span></label>
+            </div>
+            <p class="field-error" id="genderError"></p>
+          </fieldset>
+
+          <div class="form-group">
+            <label for="nationality">국적 <span class="required-mark">*</span></label>
+            <select id="nationality" required>
+              <option value="">선택해 주세요</option>
+              <option>대한민국</option><option>베트남</option><option>중국</option>
+              <option>태국</option><option>필리핀</option><option>네팔</option>
+              <option>캄보디아</option><option>인도네시아</option><option>우즈베키스탄</option>
+              <option>기타</option>
+            </select>
+            <p class="field-error" id="nationalityError"></p>
+          </div>
+
+          <div class="form-group hidden" id="otherNationalityGroup">
+            <label for="otherNationality">국적 직접 입력</label>
+            <input type="text" id="otherNationality" placeholder="국가명을 입력해 주세요">
+          </div>
+
+          <div class="form-group" id="visaGroup">
+            <label for="visa">비자</label>
+            <select id="visa">
+              <option value="">해당 없음 또는 선택</option>
+              <option>F-2</option><option>F-4</option><option>F-5</option>
+              <option>F-6</option><option>E-9</option><option>H-2</option><option>기타</option>
+            </select>
+          </div>
+
+          <fieldset class="form-group">
+            <legend>결혼 여부</legend>
+            <div class="choice-grid two-columns">
+              <label class="choice-card"><input type="radio" name="maritalStatus" value="미혼"><span>미혼</span></label>
+              <label class="choice-card"><input type="radio" name="maritalStatus" value="기혼"><span>기혼</span></label>
+            </div>
+          </fieldset>
+
+          <div class="form-group">
+            <label for="address">현재 주소 <span class="required-mark">*</span></label>
+            <input type="text" id="address" placeholder="현재 거주 중인 주소를 입력해 주세요" required>
+            <p class="field-error" id="addressError"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="emergencyPhone">비상연락처</label>
+            <input type="tel" id="emergencyPhone" placeholder="010-1234-5678" maxlength="13">
+          </div>
+
+          <div class="form-group">
+            <label for="emergencyRelation">지원자와의 관계</label>
+            <input type="text" id="emergencyRelation" placeholder="예: 배우자, 부모, 형제">
+          </div>
+
+          <div class="form-navigation">
+            <button type="button" class="button button-primary" id="step1NextButton">다음 단계</button>
+          </div>
+        </section>
+
+        <section class="form-step" data-step="2">
+          <div class="section-heading">
+            <span class="step-badge">STEP 2</span>
+            <h2>학력 및 경력사항</h2>
+            <p>최종학력과 최근 경력사항을 입력해 주세요.</p>
+          </div>
+
+          <div class="sub-section">
+            <div class="sub-section-title"><h3>학력사항</h3><span>최종학력 기준</span></div>
+            <div class="form-row two-columns">
+              <div class="form-group">
+                <label for="graduationYear">졸업년도</label>
+                <input type="number" id="graduationYear" placeholder="예: 2005">
+              </div>
+              <div class="form-group">
+                <label for="schoolName">학교명</label>
+                <input type="text" id="schoolName" placeholder="학교명을 입력해 주세요">
+              </div>
+            </div>
+          </div>
+
+          <div class="sub-section">
+            <div class="sub-section-title"><h3>경력사항</h3><span>최근 경력부터 최대 3개</span></div>
+            <p class="section-notice">경력이 없는 경우 비워두셔도 됩니다.</p>
+            <div id="careerContainer"></div>
+          </div>
+
+          <div class="form-navigation">
+            <button type="button" class="button button-secondary" id="step2PrevButton">이전</button>
+            <button type="button" class="button button-primary" id="step2NextButton">다음 단계</button>
+          </div>
+        </section>
+
+        <section class="form-step" data-step="3">
+          <div class="section-heading">
+            <span class="step-badge">STEP 3</span>
+            <h2>근무조건</h2>
+            <p>가능한 근무조건과 출퇴근 정보를 선택해 주세요.</p>
+          </div>
+
+          <fieldset class="form-group">
+            <legend>가능 근무형태</legend>
+            <p class="field-hint">복수 선택할 수 있습니다.</p>
+            <div class="choice-grid three-columns">
+              <label class="choice-card">
+                <input type="checkbox" name="workShift" value="주간">
+                <span>주간</span>
+              </label>
+              <label class="choice-card">
+                <input type="checkbox" name="workShift" value="야간">
+                <span>야간</span>
+              </label>
+              <label class="choice-card">
+                <input type="checkbox" name="workShift" value="교대">
+                <span>교대</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="form-row two-columns">
+            <fieldset class="form-group">
+              <legend>잔업 가능</legend>
+              <div class="choice-grid two-columns">
+                <label class="choice-card">
+                  <input type="radio" name="overtimeAvailable" value="가능">
+                  <span>가능</span>
+                </label>
+                <label class="choice-card">
+                  <input type="radio" name="overtimeAvailable" value="불가능">
+                  <span>불가능</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset class="form-group">
+              <legend>특근 가능</legend>
+              <div class="choice-grid two-columns">
+                <label class="choice-card">
+                  <input type="radio" name="holidayWorkAvailable" value="가능">
+                  <span>가능</span>
+                </label>
+                <label class="choice-card">
+                  <input type="radio" name="holidayWorkAvailable" value="불가능">
+                  <span>불가능</span>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+
+          <fieldset class="form-group">
+            <legend>출퇴근 방법</legend>
+            <div class="choice-grid two-columns">
+              <label class="choice-card">
+                <input type="radio" name="commuteType" value="자차">
+                <span>자차</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="commuteType" value="대중교통">
+                <span>대중교통</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="commuteType" value="통근버스">
+                <span>통근버스</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="commuteType" value="도보">
+                <span>도보</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="commuteType" value="기타">
+                <span>기타</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="form-group hidden" id="otherCommuteGroup">
+            <label for="otherCommute">기타 출퇴근 방법</label>
+            <input type="text" id="otherCommute" name="otherCommute"
+                   placeholder="출퇴근 방법을 입력해 주세요" maxlength="30">
+          </div>
+
+          <div class="form-group hidden" id="shuttleBoardingGroup">
+            <label for="shuttleBoardingPlace">
+              통근버스 탑승 희망 장소
+              <span class="required-mark">*</span>
+            </label>
+            <input type="text" id="shuttleBoardingPlace" name="shuttleBoardingPlace"
+                   placeholder="예: 향남 홈플러스 앞, 병점역 1번 출구"
+                   maxlength="80">
+            <p class="field-hint">통근버스를 선택한 경우 탑승 희망 장소를 입력해 주세요.</p>
+            <p class="field-error" id="shuttleBoardingPlaceError"></p>
+          </div>
+
+          <fieldset class="form-group">
+            <legend>희망 급여</legend>
+            <div class="choice-grid three-columns">
+              <label class="choice-card">
+                <input type="radio" name="salaryType" value="회사 내규">
+                <span>회사 내규</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="salaryType" value="협의 가능">
+                <span>협의 가능</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="salaryType" value="직접 입력">
+                <span>직접 입력</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="form-group hidden" id="desiredSalaryGroup">
+            <label for="desiredSalary">희망 급여 직접 입력</label>
+            <div class="input-with-unit">
+              <input type="number" id="desiredSalary" name="desiredSalary"
+                     placeholder="예: 3000000" inputmode="numeric" min="0">
+              <span>원</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="availableStartDate">출근 가능일</label>
+            <input type="text" id="availableStartDate" name="availableStartDate" inputmode="numeric" maxlength="10" placeholder="YYYY-MM-DD">
+          </div>
+
+          <div class="form-group">
+            <label for="workConditionNote">추가 요청사항</label>
+            <textarea id="workConditionNote" name="workConditionNote"
+                      rows="4" placeholder="근무조건과 관련하여 전달할 내용이 있으면 입력해 주세요."
+                      maxlength="300"></textarea>
+          </div>
+
+          <div class="save-status" id="saveStatus" aria-live="polite">
+            입력 내용이 자동으로 임시 저장됩니다.
+          </div>
+
+          <div class="form-navigation">
+            <button type="button" class="button button-secondary" id="step3PrevButton">이전</button>
+            <button type="button" class="button button-primary" id="step3NextButton">다음 단계</button>
+          </div>
+        </section>
+        <section class="form-step" data-step="4">
+          <div class="section-heading">
+            <span class="step-badge">STEP 4</span>
+            <h2>건강 및 추가정보</h2>
+            <p>근무 배치를 위해 필요한 내용을 입력해 주세요.</p>
+          </div>
+
+          <fieldset class="form-group">
+            <legend>건강상태 <span class="required-mark">*</span></legend>
+            <div class="choice-grid mobile-stack">
+              <label class="choice-card">
+                <input type="radio" name="healthStatus" value="양호">
+                <span>양호</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="healthStatus" value="비양호">
+                <span>비양호</span>
+              </label>
+            </div>
+            <p class="field-error" id="healthStatusError"></p>
+          </fieldset>
+
+          <div class="form-group">
+            <label for="medicalHistory">기존 병력</label>
+            <textarea id="medicalHistory" name="medicalHistory" rows="4"
+                      placeholder="치료 또는 수술 이력 등이 있으면 입력해 주세요."
+                      maxlength="300"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>시력 <span class="field-label-note">(선택)</span></label>
+            <div class="vision-grid">
+              <div>
+                <label class="mini-label" for="leftVision">좌안</label>
+                <input type="text" id="leftVision" name="leftVision"
+                       placeholder="예: 1.0" inputmode="decimal" maxlength="5">
+              </div>
+              <div>
+                <label class="mini-label" for="rightVision">우안</label>
+                <input type="text" id="rightVision" name="rightVision"
+                       placeholder="예: 1.0" inputmode="decimal" maxlength="5">
+              </div>
+            </div>
+          </div>
+
+          <fieldset class="form-group">
+            <legend>안경·렌즈 착용 여부</legend>
+            <div class="choice-grid mobile-stack">
+              <label class="choice-card">
+                <input type="radio" name="visionCorrection" value="예">
+                <span>예</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="visionCorrection" value="아니오">
+                <span>아니오</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="form-group">
+            <legend>흡연 여부</legend>
+            <div class="choice-grid mobile-stack">
+              <label class="choice-card">
+                <input type="radio" name="smokingStatus" value="흡연">
+                <span>흡연</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="smokingStatus" value="비흡연">
+                <span>비흡연</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="form-group">
+            <label for="specialNotes">특이사항</label>
+            <textarea id="specialNotes" name="specialNotes" rows="4"
+                      placeholder="알레르기, 지병, 특이체질 등 전달할 내용이 있으면 입력해 주세요."
+                      maxlength="300"></textarea>
+          </div>
+
+          <fieldset class="form-group insurance-panel">
+            <legend>
+              희망 고용 방식
+              <span class="required-mark">*</span>
+            </legend>
+            <p class="insurance-guide">
+              아래 내용을 확인한 후 현재 희망하시는 방식 한 가지를 선택해 주세요.
+            </p>
+
+            <div class="choice-grid insurance-options">
+              <label class="choice-card insurance-choice">
+                <input type="radio" name="insurancePreference"
+                       value="입사 시 4대보험 가입 희망">
+                <span>
+                  <strong>1. 입사 시 4대보험 가입</strong>
+                  <small>입사일부터 국민연금·건강보험·고용보험·산재보험 적용을 희망합니다.</small>
+                </span>
+              </label>
+
+              <label class="choice-card insurance-choice">
+                <input type="radio" name="insurancePreference"
+                       value="입사 후 3개월간 3.3% 사업소득 신고 후 4대보험 가입 희망">
+                <span>
+                  <strong>2. 3개월간 3.3% 신고 후 4대보험 가입</strong>
+                  <small>입사 후 초기 3개월은 3.3% 사업소득 신고 방식으로 진행한 뒤 4대보험 가입을 희망합니다.</small>
+                </span>
+              </label>
+
+              <label class="choice-card insurance-choice">
+                <input type="radio" name="insurancePreference"
+                       value="3.3% 사업소득 신고 희망">
+                <span>
+                  <strong>3. 3.3% 사업소득 신고</strong>
+                  <small>보수 지급 시 3.3% 원천징수되는 사업소득 신고 방식을 희망합니다.</small>
+                </span>
+              </label>
+            </div>
+            <p class="field-error" id="insurancePreferenceError"></p>
+          </fieldset>
+
+          <div class="information-box insurance-information">
+            <strong>꼭 확인해 주세요</strong>
+            <p>선택하신 항목은 지원자의 현재 희망사항을 확인하기 위한 내용입니다.</p>
+            <p>실제 고용 형태와 4대보험 적용 여부는 업무 방식, 근무 조건 및 입사 협의 결과에 따라 최종 결정됩니다.</p>
+            <p>입사 전 담당자가 세부 내용을 다시 안내해 드립니다.</p>
+          </div>
+
+          <div class="save-status" id="saveStatusStep4" aria-live="polite">
+            입력 내용이 자동으로 임시 저장됩니다.
+          </div>
+
+          <div class="form-navigation mobile-navigation">
+            <button type="button" class="button button-secondary" id="step4PrevButton">이전</button>
+            <button type="button" class="button button-primary" id="step4NextButton">다음 단계</button>
+          </div>
+        </section>
+        <section class="form-step" data-step="5">
+          <div class="section-heading">
+            <span class="step-badge">STEP 5</span>
+            <h2>개인정보 동의 및 전자서명</h2>
+            <p>지원 내용을 확인하고 개인정보 수집·이용에 동의한 뒤 서명해 주세요.</p>
+          </div>
+
+          <section class="consent-panel" aria-labelledby="privacyConsentTitle">
+            <div class="consent-heading-row">
+              <div>
+                <h3 id="privacyConsentTitle">개인정보 수집·이용 동의</h3>
+                <p>채용 지원 접수를 위해 반드시 필요한 항목입니다.</p>
+              </div>
+              <span class="required-chip">필수</span>
+            </div>
+
+            <button type="button" class="consent-detail-button" id="consentDetailButton"
+                    aria-expanded="false" aria-controls="consentDetails">
+              동의 내용 자세히 보기
+            </button>
+
+            <div class="consent-details hidden" id="consentDetails">
+              <dl>
+                <div><dt>수집 목적</dt><dd>입사지원 접수, 지원자 확인, 채용 심사 및 연락</dd></div>
+                <div><dt>수집 항목</dt><dd>지원서에 입력한 기본정보, 학력·경력, 근무조건, 건강 및 추가정보, 전자서명</dd></div>
+                <div><dt>보유 기간</dt><dd>채용 절차 종료 후 회사의 내부 규정 및 관련 법령에 따른 기간까지 보관</dd></div>
+                <div><dt>동의 거부</dt><dd>동의를 거부할 수 있으나 입사지원 접수가 제한될 수 있습니다.</dd></div>
+              </dl>
+              <p class="consent-note">민감한 건강정보는 채용 및 배치 검토 목적에 필요한 범위에서만 확인됩니다.</p>
+            </div>
+
+            <label class="agreement-check">
+              <input type="checkbox" id="privacyConsent" name="privacyConsent" value="동의">
+              <span>개인정보 수집 및 이용에 동의합니다.</span>
+            </label>
+            <p class="field-error" id="privacyConsentError"></p>
+          </section>
+
+          <section class="applicant-confirmation" aria-labelledby="applicantConfirmTitle">
+            <h3 id="applicantConfirmTitle">지원자 확인</h3>
+            <div class="confirmation-grid">
+              <div><span>지원자</span><strong id="confirmApplicantName">-</strong></div>
+              <div><span>연락처</span><strong id="confirmApplicantPhone">-</strong></div>
+              <div><span>작성일</span><strong id="confirmApplicationDate">-</strong></div>
+            </div>
+          </section>
+
+          <section class="signature-section" aria-labelledby="signatureTitle">
+            <div class="signature-heading-row">
+              <div>
+                <h3 id="signatureTitle">전자서명 <span class="required-mark">*</span></h3>
+                <p>모바일은 손가락으로, PC는 마우스로 서명해 주세요.</p>
+              </div>
+              <button type="button" class="signature-clear-button" id="clearSignatureButton">다시 쓰기</button>
+            </div>
+
+            <div class="signature-pad-wrap" id="signaturePadWrap">
+              <canvas id="signatureCanvas" aria-label="전자서명 입력 영역"></canvas>
+              <span class="signature-placeholder" id="signaturePlaceholder">이곳에 서명해 주세요</span>
+            </div>
+            <input type="hidden" id="signatureData" name="signatureData">
+            <p class="field-error" id="signatureError"></p>
+          </section>
+
+          <div class="information-box signature-information">
+            <strong>서명 전 확인</strong>
+            <p>입력한 내용이 사실과 다름없음을 확인하며, 본인이 직접 작성하고 서명합니다.</p>
+          </div>
+
+          <div class="save-status" id="saveStatusStep5" aria-live="polite">
+            동의 및 서명 내용도 자동으로 임시 저장됩니다.
+          </div>
+
+          <div class="form-navigation mobile-navigation">
+            <button type="button" class="button button-secondary" id="step5PrevButton">이전</button>
+            <button type="button" class="button button-primary" id="step5NextButton">최종 확인</button>
+          </div>
+        </section>
+        <section class="form-step" data-step="6">
+          <div class="section-heading">
+            <span class="step-badge">STEP 6</span>
+            <h2>최종 확인</h2>
+            <p>작성한 내용을 확인한 후 최종 제출해 주세요.</p>
+          </div>
+
+          <div class="preview-notice">
+            <strong>제출 전 확인해 주세요</strong>
+            <p>잘못 입력한 내용이 있으면 아래의 ‘수정하기’ 버튼을 눌러 수정할 수 있습니다.</p>
+          </div>
+
+          <div id="finalPreview" class="final-preview" aria-live="polite"></div>
+
+          <section class="preview-signature-card">
+            <div class="preview-card-heading">
+              <h3>전자서명</h3>
+              <span id="previewConsentStatus" class="preview-status-chip">동의 완료</span>
+            </div>
+            <div class="preview-signature-box">
+              <img id="previewSignatureImage" alt="지원자 전자서명">
+            </div>
+            <p id="previewSignedAt" class="preview-signed-at"></p>
+          </section>
+
+          <p class="field-error" id="finalSubmitError"></p>
+
+          <div class="form-navigation mobile-navigation final-navigation">
+            <button type="button" class="button button-secondary" id="step6EditButton">수정하기</button>
+            <button type="button" class="button button-primary" id="finalSubmitButton">최종 제출</button>
+          </div>
+        </section>
+      </form>
+    </main>
+
+    <footer class="app-footer">
+      <p>작성 중인 내용은 현재 사용 중인 기기에 임시 저장될 예정입니다.</p>
+      <p>문의: (주)하늘컴퍼니 채용담당자</p>
+    </footer>
+  </div>
+
+  <script src="./js/config.js?v=1.0.13"></script>
+  <script src="./js/script.js?v=1.0.13"></script>
+</body>
+</html>

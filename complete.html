@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>입사지원 접수 완료 | (주)하늘컴퍼니</title>
+  <style>
+    *{box-sizing:border-box} body{margin:0;background:#f2f5f9;color:#172033;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+    .wrap{max-width:720px;min-height:100vh;margin:0 auto;background:#fff}
+    .hero{padding:28px 24px;background:linear-gradient(135deg,#1454b8,#347df0);color:#fff}
+    .brand{font-size:18px;font-weight:800}.sub{margin-top:4px;font-size:13px;opacity:.9}
+    main{padding:48px 22px;text-align:center}.icon{display:grid;place-items:center;width:76px;height:76px;margin:0 auto 22px;border-radius:50%;background:#e8f7ee;color:#168146;font-size:40px;font-weight:900}
+    h1{margin:0 0 12px;font-size:28px}.lead{margin:0;color:#607089;line-height:1.7}
+    .receipt{margin:30px 0 20px;padding:22px;border:1px solid #dce4ef;border-radius:14px;background:#f8fafc}.receipt span{display:block;color:#6c7b90;font-size:14px}.receipt strong{display:block;margin-top:7px;color:#1659bd;font-size:25px;letter-spacing:.8px}
+    .info{margin:0 0 26px;padding:16px;border-radius:12px;background:#f3f7ff;color:#40526b;font-size:14px;line-height:1.65;text-align:left}
+    .button{display:block;width:100%;min-height:52px;padding:14px;border:0;border-radius:10px;background:#1764d4;color:#fff;font:inherit;font-weight:800;cursor:pointer;text-decoration:none}
+    .warning{margin-top:18px;color:#7c899a;font-size:13px;line-height:1.55}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero"><div class="brand">(주)하늘컴퍼니</div><div class="sub">채용관리 시스템 1.0</div></header>
+    <main>
+      <div class="icon">✓</div>
+      <h1>입사지원이 접수되었습니다.</h1>
+      <p class="lead"><strong id="applicantName">지원자</strong>님의 지원서가 정상적으로 제출되었습니다.<br>담당자가 확인 후 연락드리겠습니다.</p>
+      <div class="receipt"><span>접수번호</span><strong id="receiptNumber">확인 중</strong></div>
+      <div class="info" id="storageStatus">접수번호는 문의 시 필요할 수 있으니 화면을 캡처해 보관해 주세요.</div>
+      <a class="button" href="./index.html">새 지원서 작성</a>
+      <p class="warning">문의: (주)하늘컴퍼니 채용담당자</p>
+    </main>
+  </div>
+  <script>
+    (() => {
+      try {
+        const raw = sessionStorage.getItem('recruitSystemLastSubmission');
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        document.getElementById('applicantName').textContent = data.applicantName || '지원자';
+        document.getElementById('receiptNumber').textContent = data.receiptNumber || '접수 완료';
+        const status = document.getElementById('storageStatus');
+        status.innerHTML = data.googleSheetsSent
+          ? '접수번호는 문의 시 필요할 수 있으니 화면을 캡처해 보관해 주세요.<br><strong>Google Sheets로 전송 요청이 완료되었습니다.</strong>'
+          : '접수번호는 문의 시 필요할 수 있으니 화면을 캡처해 보관해 주세요.<br><strong>Google Sheets 주소가 아직 설정되지 않아 현재 기기에서만 접수 완료 처리되었습니다.</strong>';
+      } catch (error) {
+        console.warn('접수 정보를 표시하지 못했습니다.', error);
+      }
+    })();
+  </script>
+</body>
+</html>
