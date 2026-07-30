@@ -3,6 +3,8 @@
 
   const OUTPUT_WIDTH = 600;
   const OUTPUT_HEIGHT = 800;
+  // 화면 중앙의 3:4 점선 프레임만 최종 사진으로 저장합니다.
+  const CROP_FRAME_RATIO = 0.75;
   const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
   const MAX_RESUME_BYTES = 15 * 1024 * 1024;
 
@@ -88,6 +90,17 @@
     wctx.setTransform(1, 0, 0, 1, 0, 0);
   }
 
+  function getCropRect() {
+    const width = canvas.width * CROP_FRAME_RATIO;
+    const height = width * (OUTPUT_HEIGHT / OUTPUT_WIDTH);
+    return {
+      x: (canvas.width - width) / 2,
+      y: (canvas.height - height) / 2,
+      width,
+      height
+    };
+  }
+
   function draw() {
     ctx.fillStyle = "#111";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -105,24 +118,27 @@
   function clamp() {
     if (!state.originalImage) return;
 
+    const crop = getCropRect();
     const width = state.workingCanvas.width * state.scale;
     const height = state.workingCanvas.height * state.scale;
 
-    state.offsetX = Math.min(0, Math.max(canvas.width - width, state.offsetX));
-    state.offsetY = Math.min(0, Math.max(canvas.height - height, state.offsetY));
+    // 사진이 중앙 점선 프레임을 항상 완전히 덮도록 제한합니다.
+    state.offsetX = Math.min(crop.x, Math.max(crop.x + crop.width - width, state.offsetX));
+    state.offsetY = Math.min(crop.y, Math.max(crop.y + crop.height - height, state.offsetY));
   }
 
   function resetToAutoFit() {
     if (!state.originalImage) return;
 
+    const crop = getCropRect();
     state.minScale = Math.max(
-      canvas.width / state.workingCanvas.width,
-      canvas.height / state.workingCanvas.height
+      crop.width / state.workingCanvas.width,
+      crop.height / state.workingCanvas.height
     );
     state.maxScale = state.minScale * 4;
     state.scale = state.minScale;
-    state.offsetX = (canvas.width - state.workingCanvas.width * state.scale) / 2;
-    state.offsetY = (canvas.height - state.workingCanvas.height * state.scale) / 2;
+    state.offsetX = crop.x + (crop.width - state.workingCanvas.width * state.scale) / 2;
+    state.offsetY = crop.y + (crop.height - state.workingCanvas.height * state.scale) / 2;
 
     zoom.min = String(state.minScale);
     zoom.max = String(state.maxScale);
@@ -283,7 +299,23 @@
   }
 
   function confirmPhoto() {
-    state.photoDataUrl = canvas.toDataURL("image/jpeg", 0.9);
+    const crop = getCropRect();
+    const outputCanvas = document.createElement("canvas");
+    outputCanvas.width = OUTPUT_WIDTH;
+    outputCanvas.height = OUTPUT_HEIGHT;
+
+    const outputContext = outputCanvas.getContext("2d", { alpha: false });
+    outputContext.fillStyle = "#ffffff";
+    outputContext.fillRect(0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
+
+    // 편집 화면 전체가 아니라 중앙의 3:4 점선 프레임 내부만 잘라냅니다.
+    outputContext.drawImage(
+      canvas,
+      crop.x, crop.y, crop.width, crop.height,
+      0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT
+    );
+
+    state.photoDataUrl = outputCanvas.toDataURL("image/jpeg", 0.92);
     $("profilePhotoPreviewImage").src = state.photoDataUrl;
     $("profilePhotoPreview").classList.remove("hidden");
     $("profilePhotoError").textContent = "";

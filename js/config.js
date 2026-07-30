@@ -1,4 +1,4 @@
 window.RECRUIT_CONFIG = {
-  version: "1.3.5",
+  version: "v1.3.6",
   googleAppsScriptUrl: ""
 };

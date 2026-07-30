@@ -43,7 +43,7 @@ function doGet() {
   return jsonResponse_({
     ok: true,
     service: "RecruitSystem-Pro",
-    version: "1.3.0",
+    version: "v1.3.6",
     message: "Backend is running."
   });
 }
@@ -129,7 +129,7 @@ function doPost(e) {
       photoFile ? photoFile.getUrl() : "",
       resumeFile ? resumeFile.getUrl() : "",
       "신규지원",
-      cleanText_(data.version || "1.3.0")
+      cleanText_(data.version || "v1.3.6")
     ]);
 
     return jsonResponse_({

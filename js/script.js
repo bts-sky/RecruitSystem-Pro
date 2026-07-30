@@ -169,7 +169,7 @@ $("finalSubmitButton").onclick=async()=>{
   btn.textContent="제출 중...";
   try{
     const payload={
-      version:window.RECRUIT_CONFIG?.version||"1.3.5",
+      version:window.RECRUIT_CONFIG?.version||"v1.3.6",
       submittedAt:new Date().toISOString(),
       applicantName:val("koreanName"),
       phone:val("phone"),

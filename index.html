@@ -163,12 +163,12 @@
 
 <div id="photoEditorModal" class="modal hidden" role="dialog" aria-modal="true" aria-label="사진 조정">
   <div class="modal-panel">
-    <div class="modal-head"><div><strong>사진 위치 맞추기</strong><p>사진은 3:4 틀에 자동 맞춤됩니다. 손가락으로 이동하고 두 손가락으로 확대·축소해 주세요.</p></div><button type="button" id="closePhotoEditorButton" class="icon-button">×</button></div>
+    <div class="modal-head"><div><strong>사진 위치 맞추기</strong><p>중앙의 점선 3:4 프레임 안에 들어온 부분만 저장됩니다. 사진을 이동·확대해 맞춰 주세요.</p></div><button type="button" id="closePhotoEditorButton" class="icon-button">×</button></div>
     <div id="cropStage" class="crop-stage">
       <canvas id="cropCanvas" width="600" height="800"></canvas>
       <div class="crop-guide"><div class="face-guide"></div></div>
     </div>
-    <p class="hint crop-help">얼굴을 점선 타원 안에 맞춰 주세요.</p>
+    <p class="hint crop-help">얼굴을 타원에 맞추고, 저장할 부분을 중앙 점선 3:4 프레임 안에 배치해 주세요.</p>
     <div class="photo-tool-grid">
       <button type="button" class="btn secondary" id="rotateLeftButton">↺ 왼쪽 90°</button>
       <button type="button" class="btn secondary" id="rotateRightButton">↻ 오른쪽 90°</button>

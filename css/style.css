@@ -26,3 +26,20 @@
 .information-box{margin:14px 0 20px;padding:16px;border-radius:12px;background:#f7f8fa;border:1px solid #e4e7ec}
 .information-box strong{display:block;margin-bottom:8px}
 .information-box p{margin:4px 0;color:#475467;font-size:13px;line-height:1.55}
+
+/* v1.3.6: 중앙 3:4 프레임 내부만 최종 사진으로 저장 */
+.crop-guide{
+  inset:12.5%;
+  border:2px dashed rgba(255,255,255,.98);
+  box-shadow:0 0 0 9999px rgba(0,0,0,.42);
+}
+.crop-guide:before,.crop-guide:after{
+  left:0;
+  right:0;
+}
+.face-guide{
+  width:64%;
+  height:45%;
+  left:18%;
+  top:11%;
+}
