@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <title>하늘컴퍼니 지원자 관리자</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <main class="shell">
+    <section id="loginView" class="login-card">
+      <div class="brand-mark">H</div>
+      <p class="eyebrow">RECRUIT SYSTEM PRO</p>
+      <h1>지원자 관리자</h1>
+      <p class="subtext">관리자 비밀번호를 입력해 주세요.</p>
+      <form id="loginForm">
+        <label for="password">관리자 비밀번호</label>
+        <div class="password-row">
+          <input id="password" type="password" autocomplete="current-password" required placeholder="비밀번호 입력">
+          <button type="button" id="togglePassword" class="secondary">보기</button>
+        </div>
+        <button type="submit" id="loginButton" class="primary">로그인</button>
+        <p id="loginMessage" class="message" aria-live="polite"></p>
+      </form>
+      <a class="back-link" href="../index.html">← 입사지원서로 돌아가기</a>
+    </section>
+
+    <section id="dashboardView" class="dashboard" hidden>
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">하늘컴퍼니</p>
+          <h1>지원자 관리</h1>
+        </div>
+        <button id="logoutButton" class="secondary">로그아웃</button>
+      </header>
+
+      <section class="stats" aria-label="지원자 현황">
+        <article><span>전체</span><strong id="totalCount">0</strong></article>
+        <article><span>신규</span><strong id="newCount">0</strong></article>
+        <article><span>면접예정</span><strong id="interviewCount">0</strong></article>
+        <article><span>합격</span><strong id="passCount">0</strong></article>
+      </section>
+
+      <section class="toolbar">
+        <label class="search-box" for="searchInput">
+          <span>검색</span>
+          <input id="searchInput" type="search" placeholder="이름, 연락처, 접수번호 검색">
+        </label>
+        <label for="statusFilter">
+          <span>상태</span>
+          <select id="statusFilter">
+            <option value="">전체 상태</option>
+            <option>신규</option><option>연락완료</option><option>면접예정</option><option>합격</option><option>불합격</option>
+          </select>
+        </label>
+        <button id="refreshButton" class="secondary">새로고침</button>
+      </section>
+
+      <p id="dashboardMessage" class="message" aria-live="polite"></p>
+      <div id="applicantList" class="applicant-list"></div>
+      <div id="emptyState" class="empty" hidden>조건에 맞는 지원자가 없습니다.</div>
+      <footer>V1.0.16-1 · 조회 및 검색 전용</footer>
+    </section>
+  </main>
+  <script src="../js/config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

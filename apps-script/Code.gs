@@ -1,6 +1,9 @@
 const LEGACY_SHEET_NAME = '지원자목록';
 const MANAGEMENT_SHEET_NAME = '지원자관리';
 const TIME_ZONE = 'Asia/Seoul';
+const SYSTEM_VERSION = '1.0.16-1';
+// 최초 관리자 비밀번호입니다. 배포 전에 원하는 값으로 반드시 변경하세요.
+const ADMIN_PASSWORD = '하늘2026';
 
 const HEADERS = [
   '접수번호', '접수일시', '처리상태', '담당자 메모',
@@ -16,12 +19,39 @@ const HEADERS = [
   '흡연 여부', '특이사항', '희망 고용 방식', '개인정보 동의', '전자서명', '브라우저정보'
 ];
 
-function doGet() {
-  return jsonResponse_({
-    ok: true,
-    service: 'RecruitSystem-Pro',
-    version: '1.0.15'
-  });
+function doGet(e) {
+  const params = (e && e.parameter) || {};
+  const action = String(params.action || 'health');
+
+  if (action === 'health') {
+    return outputResponse_({
+      ok: true,
+      service: 'RecruitSystem-Pro',
+      version: SYSTEM_VERSION
+    }, params.callback);
+  }
+
+  if (action === 'adminList') {
+    if (!isValidAdminPassword_(params.password)) {
+      return outputResponse_({ ok: false, message: '관리자 비밀번호가 올바르지 않습니다.' }, params.callback);
+    }
+
+    try {
+      const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+      const sheet = getOrCreateManagementSheet_(spreadsheet);
+      const applicants = readApplicantsForAdmin_(sheet);
+      return outputResponse_({
+        ok: true,
+        version: SYSTEM_VERSION,
+        count: applicants.length,
+        applicants: applicants
+      }, params.callback);
+    } catch (error) {
+      return outputResponse_({ ok: false, message: String(error) }, params.callback);
+    }
+  }
+
+  return outputResponse_({ ok: false, message: '지원하지 않는 요청입니다.' }, params.callback);
 }
 
 function doPost(e) {
@@ -270,6 +300,48 @@ function firstChecked_(value) {
 function joinChecked_(value) {
   if (Array.isArray(value)) return value.join(', ');
   return value || '';
+}
+
+
+function isValidAdminPassword_(password) {
+  return String(password || '') === ADMIN_PASSWORD;
+}
+
+function readApplicantsForAdmin_(sheet) {
+  if (sheet.getLastRow() < 2) return [];
+
+  const values = sheet.getRange(1, 1, sheet.getLastRow(), HEADERS.length).getDisplayValues();
+  const headers = values[0];
+  const visibleHeaders = [
+    '접수번호', '접수일시', '처리상태', '담당자 메모', '성명', '연락처',
+    '생년월일', '나이', '성별', '국적', '비자', '주소', '출근 가능일',
+    '가능 근무형태', '희망 고용 방식'
+  ];
+
+  return values.slice(1)
+    .filter((row) => row.some((value) => String(value).trim() !== ''))
+    .map((row) => {
+      const item = {};
+      visibleHeaders.forEach((header) => {
+        const index = headers.indexOf(header);
+        item[header] = index >= 0 ? row[index] : '';
+      });
+      return item;
+    })
+    .reverse();
+}
+
+function outputResponse_(value, callback) {
+  const json = JSON.stringify(value);
+  const callbackName = String(callback || '');
+
+  if (/^[a-zA-Z_$][0-9a-zA-Z_$\.]*$/.test(callbackName)) {
+    return ContentService
+      .createTextOutput(callbackName + '(' + json + ');')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+
+  return jsonResponse_(value);
 }
 
 function jsonResponse_(value) {
