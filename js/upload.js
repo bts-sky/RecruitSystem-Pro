@@ -299,6 +299,8 @@
   }
 
   function confirmPhoto() {
+    if (!state.originalImage) return;
+
     const crop = getCropRect();
     const outputCanvas = document.createElement("canvas");
     outputCanvas.width = OUTPUT_WIDTH;
@@ -307,12 +309,22 @@
     const outputContext = outputCanvas.getContext("2d", { alpha: false });
     outputContext.fillStyle = "#ffffff";
     outputContext.fillRect(0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
+    outputContext.imageSmoothingEnabled = true;
+    outputContext.imageSmoothingQuality = "high";
 
-    // 편집 화면 전체가 아니라 중앙의 3:4 점선 프레임 내부만 잘라냅니다.
+    // v1.3.7 핵심 수정:
+    // 화면 캔버스를 다시 캡처하지 않고, 현재 이동/확대/회전 상태의 원본 이미지를
+    // 점선 3:4 프레임 좌표에 맞춰 직접 출력합니다.
+    // 따라서 프레임 바깥쪽 신분증 영역은 최종 사진에 포함되지 않습니다.
+    const scaleX = OUTPUT_WIDTH / crop.width;
+    const scaleY = OUTPUT_HEIGHT / crop.height;
+
     outputContext.drawImage(
-      canvas,
-      crop.x, crop.y, crop.width, crop.height,
-      0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT
+      state.workingCanvas,
+      (state.offsetX - crop.x) * scaleX,
+      (state.offsetY - crop.y) * scaleY,
+      state.workingCanvas.width * state.scale * scaleX,
+      state.workingCanvas.height * state.scale * scaleY
     );
 
     state.photoDataUrl = outputCanvas.toDataURL("image/jpeg", 0.92);
