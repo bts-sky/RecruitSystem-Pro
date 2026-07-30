@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="description" content="(주)하늘컴퍼니 모바일 입사지원서">
   <title>입사지원서 | (주)하늘컴퍼니</title>
-  <link rel="stylesheet" href="./css/style.css?v=1.2.0">
+  <link rel="stylesheet" href="./css/style.css?v=1.3.2">
 </head>
 <body>
 <div class="app-container">
   <header class="app-header">
     <div class="brand-row">
       <div class="brand-symbol">H</div>
-      <div><strong>(주)하늘컴퍼니</strong><span>채용관리 시스템 v1.2.0</span></div>
+      <div><strong>(주)하늘컴퍼니</strong><span>채용관리 시스템 v1.3.2</span></div>
     </div>
     <h1>모바일 입사지원서</h1>
     <p>아래 내용을 정확하게 작성해 주세요.</p>
@@ -122,18 +122,27 @@
 
 <div id="photoEditorModal" class="modal hidden" role="dialog" aria-modal="true" aria-label="사진 조정">
   <div class="modal-panel">
-    <div class="modal-head"><div><strong>사진 위치 맞추기</strong><p>사진을 움직이고 확대해 얼굴을 틀 안에 맞춰 주세요.</p></div><button type="button" id="closePhotoEditorButton" class="icon-button">×</button></div>
+    <div class="modal-head"><div><strong>사진 위치 맞추기</strong><p>사진은 3:4 틀에 자동 맞춤됩니다. 손가락으로 이동하고 두 손가락으로 확대·축소해 주세요.</p></div><button type="button" id="closePhotoEditorButton" class="icon-button">×</button></div>
     <div id="cropStage" class="crop-stage">
       <canvas id="cropCanvas" width="600" height="800"></canvas>
       <div class="crop-guide"><div class="face-guide"></div></div>
     </div>
-    <label class="zoom-control">확대/축소<input id="photoZoom" type="range" min="1" max="3" step="0.01" value="1"></label>
+    <p class="hint crop-help">얼굴을 점선 타원 안에 맞춰 주세요.</p>
+    <div class="photo-tool-grid">
+      <button type="button" class="btn secondary" id="rotateLeftButton">↺ 왼쪽 90°</button>
+      <button type="button" class="btn secondary" id="rotateRightButton">↻ 오른쪽 90°</button>
+      <button type="button" class="btn secondary" id="autoFitButton">자동 맞춤</button>
+    </div>
+    <label class="zoom-control">축소 · 확대
+      <input id="photoZoom" type="range" min="1" max="3" step="0.01" value="1">
+    </label>
+    <p class="hint crop-help">한 손가락/마우스: 이동 · 두 손가락/슬라이더: 확대·축소</p>
     <div class="editor-actions"><button type="button" class="btn secondary" id="cancelPhotoButton">취소</button><button type="button" class="btn primary" id="confirmPhotoButton">이 사진 사용</button></div>
   </div>
 </div>
 
-<script src="./js/config.js?v=1.2.0"></script>
-<script src="./js/upload.js?v=1.2.0"></script>
-<script src="./js/script.js?v=1.2.0"></script>
+<script src="./js/config.js?v=1.3.2"></script>
+<script src="./js/upload.js?v=1.3.2"></script>
+<script src="./js/script.js?v=1.3.2"></script>
 </body>
 </html>

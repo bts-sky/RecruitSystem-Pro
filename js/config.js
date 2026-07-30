@@ -1,1 +1,4 @@
-window.RECRUIT_CONFIG = { version: "1.2.0", googleAppsScriptUrl: "" };
+window.RECRUIT_CONFIG = {
+  version: "1.3.2",
+  googleAppsScriptUrl: ""
+};

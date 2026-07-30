@@ -24,6 +24,43 @@ $("step5NextButton").onclick=()=>{if(validate5())show(6)};
 const canvas=$("signatureCanvas"),ctx=canvas.getContext("2d"),wrap=canvas.parentElement;function size(){const r=wrap.getBoundingClientRect(),ratio=devicePixelRatio||1;canvas.width=r.width*ratio;canvas.height=r.height*ratio;ctx.scale(ratio,ratio);ctx.lineWidth=2.2;ctx.lineCap="round";ctx.strokeStyle="#111"}size();window.addEventListener("resize",size);let drawing=false;function pos(e){const r=canvas.getBoundingClientRect(),p=e.touches?.[0]||e;return{x:p.clientX-r.left,y:p.clientY-r.top}}function start(e){e.preventDefault();drawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y)}function move(e){if(!drawing)return;e.preventDefault();const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();hasSignature=true;$("signaturePlaceholder").classList.add("hidden");$("signatureData").value=canvas.toDataURL("image/png")}function end(){drawing=false}canvas.addEventListener("mousedown",start);canvas.addEventListener("mousemove",move);window.addEventListener("mouseup",end);canvas.addEventListener("touchstart",start,{passive:false});canvas.addEventListener("touchmove",move,{passive:false});canvas.addEventListener("touchend",end);
 $("clearSignatureButton").onclick=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);hasSignature=false;$("signatureData").value="";$("signaturePlaceholder").classList.remove("hidden")};
 $("step5NextButton").addEventListener("click",()=>{$("previewSignatureImage").src=$("signatureData").value});
-$("finalSubmitButton").onclick=async()=>{const btn=$("finalSubmitButton");btn.disabled=true;btn.textContent="확인 중...";const payload={applicantName:val("koreanName"),phone:val("phone"),form:Object.fromEntries(new FormData(form).entries()),uploads:await window.RecruitUpload.buildUploadPayload()};sessionStorage.setItem("recruitSystemV120Preview",JSON.stringify({...payload,uploads:{profilePhoto:payload.uploads.profilePhoto?{name:payload.uploads.profilePhoto.name}:null,resume:payload.uploads.resume?{name:payload.uploads.resume.name}:null}}));alert("v1.2.0 화면 테스트가 완료되었습니다.\nGoogle Drive 실제 저장은 다음 단계에서 Code.gs와 연결합니다.");btn.disabled=false;btn.textContent="최종 제출"};
+$("finalSubmitButton").onclick=async()=>{
+  const btn=$("finalSubmitButton"),message=$("finalSubmitError");
+  message.textContent="";
+  const endpoint=window.RECRUIT_CONFIG?.googleAppsScriptUrl?.trim();
+  if(!endpoint){
+    message.textContent="Google Apps Script 배포 주소가 아직 설정되지 않았습니다. js/config.js에 /exec 주소를 입력해 주세요.";
+    return;
+  }
+  btn.disabled=true;
+  btn.textContent="제출 중...";
+  try{
+    const payload={
+      version:window.RECRUIT_CONFIG?.version||"1.3.2",
+      submittedAt:new Date().toISOString(),
+      applicantName:val("koreanName"),
+      phone:val("phone"),
+      form:Object.fromEntries(new FormData(form).entries()),
+      uploads:await window.RecruitUpload.buildUploadPayload()
+    };
+    const response=await fetch(endpoint,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify(payload)
+    });
+    const result=await response.json();
+    if(!result.ok)throw new Error(result.message||"저장에 실패했습니다.");
+    alert(`지원서가 정상적으로 제출되었습니다.
+접수번호: ${result.applicationId}`);
+    form.reset();
+    location.reload();
+  }catch(err){
+    console.error(err);
+    message.textContent=`제출하지 못했습니다: ${err.message||"잠시 후 다시 시도해 주세요."}`;
+  }finally{
+    btn.disabled=false;
+    btn.textContent="최종 제출";
+  }
+};
 careerCards();show(1);
 });
