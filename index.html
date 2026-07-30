@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- RecruitSystem-Pro V1.0.13: Google Sheets 제출 연동 준비 -->
+<!-- RecruitSystem-Pro V1.1.0: Google Sheets 제출 연동 준비 -->
 <!-- RecruitSystem-Pro V1.0.6 FIX -->
 <html lang="ko">
 <head>
@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <meta name="description" content="(주)하늘컴퍼니 모바일 입사지원서">
   <title>입사지원서 | (주)하늘컴퍼니</title>
-  <link rel="stylesheet" href="./css/style.css?v=1.0.13">
+  <link rel="stylesheet" href="./css/style.css?v=1.1.0">
 </head>
 <body>
   <div class="app-container">
@@ -16,7 +16,7 @@
         <div class="company-symbol">H</div>
         <div class="company-name">
           <strong>(주)하늘컴퍼니</strong>
-          <span>채용관리 시스템 1.0</span>
+          <span>채용관리 시스템 1.1</span>
         </div>
       </div>
       <h1>모바일 입사지원서</h1>
@@ -117,6 +117,22 @@
             </div>
           </fieldset>
 
+
+          <div class="form-group upload-panel">
+            <label for="profilePhoto">증명사진</label>
+            <p class="field-hint">JPG, PNG, WEBP / 최대 10MB</p>
+            <input type="file" id="profilePhoto" name="profilePhoto" accept="image/jpeg,image/png,image/webp" capture="user">
+            <div id="profilePhotoPreview" class="file-preview hidden" aria-live="polite">
+              <img id="profilePhotoPreviewImage" alt="증명사진 미리보기">
+              <div class="file-preview-info">
+                <strong id="profilePhotoName"></strong>
+                <span id="profilePhotoSize"></span>
+                <button type="button" class="button button-secondary" id="removeProfilePhotoButton">사진 삭제</button>
+              </div>
+            </div>
+            <p class="field-error" id="profilePhotoError"></p>
+          </div>
+
           <div class="form-group">
             <label for="address">현재 주소 <span class="required-mark">*</span></label>
             <input type="text" id="address" placeholder="현재 거주 중인 주소를 입력해 주세요" required>
@@ -163,6 +179,28 @@
             <div class="sub-section-title"><h3>경력사항</h3><span>최근 경력부터 최대 3개</span></div>
             <p class="section-notice">경력이 없는 경우 비워두셔도 됩니다.</p>
             <div id="careerContainer"></div>
+          </div>
+
+
+          <div class="sub-section upload-panel">
+            <div class="sub-section-title"><h3>첨부파일</h3><span>선택사항</span></div>
+            <p class="section-notice">이력서와 자격증 파일을 첨부할 수 있습니다.</p>
+
+            <div class="form-group">
+              <label for="resumeFile">이력서</label>
+              <p class="field-hint">PDF, HWP, DOC, DOCX / 최대 15MB</p>
+              <input type="file" id="resumeFile" name="resumeFile" accept=".pdf,.hwp,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+              <div id="resumeFilePreview" class="attachment-preview hidden" aria-live="polite"></div>
+              <p class="field-error" id="resumeFileError"></p>
+            </div>
+
+            <div class="form-group">
+              <label for="certificateFiles">자격증 및 기타서류</label>
+              <p class="field-hint">최대 5개, 파일당 15MB</p>
+              <input type="file" id="certificateFiles" name="certificateFiles" multiple accept=".pdf,.hwp,.doc,.docx,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp">
+              <div id="certificateFileList" class="attachment-list" aria-live="polite"></div>
+              <p class="field-error" id="certificateFilesError"></p>
+            </div>
           </div>
 
           <div class="form-navigation">
@@ -547,6 +585,13 @@
 
           <div id="finalPreview" class="final-preview" aria-live="polite"></div>
 
+
+          <section class="preview-section" id="previewUploadSection">
+            <div class="preview-card-heading"><h3>사진 및 첨부파일</h3></div>
+            <div id="finalPhotoPreview" class="final-photo-preview"></div>
+            <div id="finalAttachmentPreview" class="final-attachment-preview"></div>
+          </section>
+
           <section class="preview-signature-card">
             <div class="preview-card-heading">
               <h3>전자서명</h3>
@@ -574,7 +619,8 @@
     </footer>
   </div>
 
-  <script src="./js/config.js?v=1.0.13"></script>
-  <script src="./js/script.js?v=1.0.13"></script>
+  <script src="./js/config.js?v=1.1.0"></script>
+  <script src="./js/upload.js?v=1.1.0"></script>
+  <script src="./js/script.js?v=1.1.0"></script>
 </body>
 </html>
