@@ -4,7 +4,7 @@
   const OUTPUT_WIDTH = 600;
   const OUTPUT_HEIGHT = 800;
   // 화면 중앙의 3:4 점선 프레임만 최종 사진으로 저장합니다.
-  const CROP_FRAME_RATIO = 0.75;
+  const CROP_FRAME_RATIO = 0.60;
   const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
   const MAX_RESUME_BYTES = 15 * 1024 * 1024;
 
@@ -136,7 +136,7 @@
       crop.height / state.workingCanvas.height
     );
     state.maxScale = state.minScale * 4;
-    state.scale = state.minScale;
+    state.scale = Math.min(state.maxScale, state.minScale * 2);
     state.offsetX = crop.x + (crop.width - state.workingCanvas.width * state.scale) / 2;
     state.offsetY = crop.y + (crop.height - state.workingCanvas.height * state.scale) / 2;
 
@@ -312,7 +312,7 @@
     outputContext.imageSmoothingEnabled = true;
     outputContext.imageSmoothingQuality = "high";
 
-    // v1.3.7 핵심 수정:
+    // v1.3.8 핵심 수정:
     // 화면 캔버스를 다시 캡처하지 않고, 현재 이동/확대/회전 상태의 원본 이미지를
     // 점선 3:4 프레임 좌표에 맞춰 직접 출력합니다.
     // 따라서 프레임 바깥쪽 신분증 영역은 최종 사진에 포함되지 않습니다.

@@ -5,7 +5,7 @@ const names={1:"기본정보",2:"학력 및 경력사항",3:"근무조건",4:"�
 let current=1,hasSignature=false;
 const $=id=>document.getElementById(id);
 function careerCards(){const c=$("careerContainer");for(let i=1;i<=3;i++)c.insertAdjacentHTML("beforeend",`<div class="career-card"><h3>경력 ${i}${i===1?" · 최근 경력":""}</h3><div class="form-group"><label for="careerCompany${i}">회사명 또는 근무지</label><input id="careerCompany${i}" name="careerCompany${i}"></div><div class="form-row"><div class="form-group"><label for="careerPeriod${i}">근무기간</label><input id="careerPeriod${i}" name="careerPeriod${i}" placeholder="예: 2024.01 ~ 2025.06"></div><div class="form-group"><label for="careerJob${i}">담당업무</label><input id="careerJob${i}" name="careerJob${i}" placeholder="예: 생산, 검사, 포장"></div></div><div class="form-group"><label for="careerReason${i}">퇴사사유</label><input id="careerReason${i}" name="careerReason${i}"></div></div>`)}
-function show(n){current=n;steps.forEach(s=>s.classList.toggle("active",Number(s.dataset.step)===n));$("currentStepText").textContent=names[n];$("currentStepNumber").textContent=n;$("progressBarFill").style.width=`${n/6*100}%`;if(n===6){renderPreview();window.RecruitUpload?.renderFinalUploadPreview()}window.scrollTo({top:0,behavior:"smooth"})}
+function show(n){current=n;steps.forEach(s=>s.classList.toggle("active",Number(s.dataset.step)===n));$("currentStepText").textContent=names[n];$("currentStepNumber").textContent=n;$("progressBarFill").style.width=`${n/6*100}%`;if(n===5){requestAnimationFrame(()=>requestAnimationFrame(resizeSignatureCanvas))}if(n===6){renderPreview();window.RecruitUpload?.renderFinalUploadPreview()}window.scrollTo({top:0,behavior:"smooth"})}
 function error(id,msg=""){$(id).textContent=msg}
 function dateValid(v){if(!/^\d{4}-\d{2}-\d{2}$/.test(v))return false;const [y,m,d]=v.split("-").map(Number),x=new Date(y,m-1,d);return x.getFullYear()===y&&x.getMonth()===m-1&&x.getDate()===d}
 function validate1(){["koreanNameError","phoneError","birthDateError","genderError","addressError"].forEach(x=>error(x));let ok=true;if(!$("koreanName").value.trim()){error("koreanNameError","성명을 입력해 주세요.");ok=false}if(!/^010-\d{4}-\d{4}$/.test($("phone").value)){error("phoneError","휴대전화 번호를 정확히 입력해 주세요.");ok=false}if(!dateValid($("birthDate").value)){error("birthDateError","생년월일을 YYYY-MM-DD 형식으로 입력해 주세요.");ok=false}if(!form.querySelector('[name="gender"]:checked')){error("genderError","성별을 선택해 주세요.");ok=false}if(!$("address").value.trim()){error("addressError","주소를 입력해 주세요.");ok=false}return ok}
@@ -136,8 +136,13 @@ function signatureEnd(event){
   $("signatureData").value=signatureCanvas.toDataURL("image/png");
 }
 
-resizeSignatureCanvas();
+requestAnimationFrame(resizeSignatureCanvas);
 window.addEventListener("resize",resizeSignatureCanvas);
+if(window.ResizeObserver){
+  new ResizeObserver(()=>{
+    if(current===5) resizeSignatureCanvas();
+  }).observe(signatureWrap);
+}
 
 signatureCanvas.addEventListener("pointerdown",signatureStart,{passive:false});
 signatureCanvas.addEventListener("pointermove",signatureMove,{passive:false});
@@ -169,7 +174,7 @@ $("finalSubmitButton").onclick=async()=>{
   btn.textContent="제출 중...";
   try{
     const payload={
-      version:window.RECRUIT_CONFIG?.version||"v1.3.6",
+      version:window.RECRUIT_CONFIG?.version||"v1.3.8",
       submittedAt:new Date().toISOString(),
       applicantName:val("koreanName"),
       phone:val("phone"),
