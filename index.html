@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="description" content="(주)하늘컴퍼니 모바일 입사지원서">
   <title>입사지원서 | (주)하늘컴퍼니</title>
-  <link rel="stylesheet" href="./css/style.css?v=1.3.2">
+  <link rel="stylesheet" href="./css/style.css?v=1.3.5">
 </head>
 <body>
 <div class="app-container">
   <header class="app-header">
     <div class="brand-row">
       <div class="brand-symbol">H</div>
-      <div><strong>(주)하늘컴퍼니</strong><span>채용관리 시스템 v1.3.2</span></div>
+      <div><strong>(주)하늘컴퍼니</strong><span>채용관리 시스템 v1.3.5</span></div>
     </div>
     <h1>모바일 입사지원서</h1>
     <p>아래 내용을 정확하게 작성해 주세요.</p>
@@ -56,6 +56,47 @@
         <div class="section-heading"><span>STEP 3</span><h2>근무조건</h2><p>희망 근무조건을 선택해 주세요.</p></div>
         <fieldset class="form-group"><legend>희망 근무형태</legend><div class="choice-grid"><label><input type="radio" name="workType" value="주간"><span>주간</span></label><label><input type="radio" name="workType" value="야간"><span>야간</span></label><label><input type="radio" name="workType" value="2교대"><span>2교대</span></label><label><input type="radio" name="workType" value="상관없음"><span>상관없음</span></label></div></fieldset>
         <fieldset class="form-group"><legend>출퇴근 방법</legend><div class="choice-grid"><label><input type="radio" name="commuteType" value="자차"><span>자차</span></label><label><input type="radio" name="commuteType" value="대중교통"><span>대중교통</span></label><label><input type="radio" name="commuteType" value="통근버스"><span>통근버스</span></label><label><input type="radio" name="commuteType" value="도보"><span>도보</span></label></div></fieldset>
+        <div class="form-group hidden" id="shuttleLocationGroup">
+          <label for="shuttleLocation">통근버스 탑승 희망 위치 *</label>
+          <input id="shuttleLocation" name="shuttleLocation" placeholder="예: 향남 홈플러스 앞, 병점역 1번 출구">
+          <p class="hint">정확한 승차 위치를 확인하기 위한 정보입니다.</p>
+          <p class="field-error" id="shuttleLocationError"></p>
+        </div>
+        <fieldset class="form-group insurance-panel">
+          <legend>희망 고용 방식 *</legend>
+          <p class="insurance-guide">아래 내용을 확인한 후 현재 희망하시는 방식 한 가지를 선택해 주세요.</p>
+          <div class="insurance-options">
+            <label class="insurance-choice">
+              <input type="radio" name="insurancePreference" value="입사 시 4대보험 가입 희망">
+              <span>
+                <strong>1. 입사 시 4대보험 가입</strong>
+                <small>입사일부터 국민연금·건강보험·고용보험·산재보험 적용을 희망합니다.</small>
+              </span>
+            </label>
+            <label class="insurance-choice">
+              <input type="radio" name="insurancePreference" value="입사 후 3개월간 3.3% 사업소득 신고 후 4대보험 가입 희망">
+              <span>
+                <strong>2. 3개월간 3.3% 신고 후 4대보험 가입</strong>
+                <small>입사 후 초기 3개월은 3.3% 사업소득 신고 방식으로 진행한 뒤 4대보험 가입을 희망합니다.</small>
+              </span>
+            </label>
+            <label class="insurance-choice">
+              <input type="radio" name="insurancePreference" value="3.3% 사업소득 신고 희망">
+              <span>
+                <strong>3. 3.3% 사업소득 신고</strong>
+                <small>보수 지급 시 3.3% 원천징수되는 사업소득 신고 방식을 희망합니다.</small>
+              </span>
+            </label>
+          </div>
+          <p class="field-error" id="insurancePreferenceError"></p>
+        </fieldset>
+
+        <div class="information-box insurance-information">
+          <strong>꼭 확인해 주세요</strong>
+          <p>선택하신 항목은 지원자의 현재 희망사항을 확인하기 위한 내용입니다.</p>
+          <p>실제 고용 형태와 4대보험 적용 여부는 업무 방식, 근무 조건 및 입사 협의 결과에 따라 최종 결정됩니다.</p>
+          <p>입사 전 담당자가 세부 내용을 다시 안내해 드립니다.</p>
+        </div>
         <div class="form-group"><label for="availableStartDate">출근 가능일</label><input id="availableStartDate" name="availableStartDate" inputmode="numeric" maxlength="10" placeholder="YYYY-MM-DD"></div>
         <div class="form-group"><label for="workConditionNote">추가 요청사항</label><textarea id="workConditionNote" name="workConditionNote" rows="4"></textarea></div>
         <div class="navigation"><button type="button" class="btn secondary" data-prev="2">이전</button><button type="button" class="btn primary" data-next="4">다음 단계</button></div>
@@ -141,8 +182,8 @@
   </div>
 </div>
 
-<script src="./js/config.js?v=1.3.2"></script>
-<script src="./js/upload.js?v=1.3.2"></script>
-<script src="./js/script.js?v=1.3.2"></script>
+<script src="./js/config.js?v=1.3.5"></script>
+<script src="./js/upload.js?v=1.3.5"></script>
+<script src="./js/script.js?v=1.3.5"></script>
 </body>
 </html>

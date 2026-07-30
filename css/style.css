@@ -9,3 +9,20 @@
 .face-guide:before{left:50%;top:-18%;bottom:-18%;width:1px}
 .face-guide:after{top:50%;left:-18%;right:-18%;height:1px}
 @media(max-width:420px){.photo-tool-grid{grid-template-columns:1fr 1fr}.photo-tool-grid #autoFitButton{grid-column:1/-1}}
+
+.signature-wrap{overflow:hidden}
+.signature-wrap canvas{touch-action:none;cursor:crosshair;user-select:none;-webkit-user-select:none}
+.signature-wrap.is-drawing{border-color:#2367b1}
+
+.insurance-panel{margin-top:22px}
+.insurance-guide{margin:0 0 12px;color:#667085;font-size:14px;line-height:1.55}
+.insurance-options{display:grid;gap:10px}
+.insurance-choice{display:flex;align-items:flex-start;gap:12px;padding:15px;border:1px solid #d9dee7;border-radius:12px;background:#fff;cursor:pointer}
+.insurance-choice:has(input:checked){border-color:#2367b1;background:#f2f7ff}
+.insurance-choice input{margin-top:4px}
+.insurance-choice span{display:grid;gap:5px}
+.insurance-choice strong{font-size:15px}
+.insurance-choice small{color:#667085;line-height:1.45}
+.information-box{margin:14px 0 20px;padding:16px;border-radius:12px;background:#f7f8fa;border:1px solid #e4e7ec}
+.information-box strong{display:block;margin-bottom:8px}
+.information-box p{margin:4px 0;color:#475467;font-size:13px;line-height:1.55}

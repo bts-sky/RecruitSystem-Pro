@@ -22,11 +22,11 @@ function setupSystem() {
 
     const sheet = spreadsheet.getSheets()[0];
     sheet.setName(SYSTEM.SHEET_NAME);
-    sheet.getRange(1, 1, 1, 24).setValues([[
+    sheet.getRange(1, 1, 1, 26).setValues([[
       "접수번호", "접수일시", "성명", "휴대전화", "생년월일", "만 나이",
       "성별", "주소", "비상연락처", "졸업년도", "학교명",
-      "경력1", "경력2", "경력3", "희망근무형태", "출퇴근방법",
-      "출근가능일", "추가요청사항", "개인정보동의", "지원자폴더",
+      "경력1", "경력2", "경력3", "희망근무형태", "출퇴근방법", "통근버스탑승위치",
+      "희망고용방식", "출근가능일", "추가요청사항", "개인정보동의", "지원자폴더",
       "사진파일", "이력서파일", "상태", "버전"
     ]]);
     sheet.setFrozenRows(1);
@@ -120,6 +120,8 @@ function doPost(e) {
       careerText_(form, 3),
       cleanText_(form.workType),
       cleanText_(form.commuteType),
+      cleanText_(form.shuttleLocation),
+      cleanText_(form.insurancePreference),
       cleanText_(form.availableStartDate),
       cleanText_(form.workConditionNote),
       cleanText_(form.privacyConsent),
