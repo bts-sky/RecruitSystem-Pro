@@ -4,7 +4,7 @@ const form=document.getElementById("applicationForm"),steps=[...document.querySe
 const names={1:"기본정보",2:"학력 및 경력사항",3:"근무조건",4:"사진 및 이력서",5:"개인정보 동의 및 서명",6:"최종 확인"};
 let current=1,hasSignature=false;
 const $=id=>document.getElementById(id);
-function careerCards(){const c=$("careerContainer");for(let i=1;i<=3;i++)c.insertAdjacentHTML("beforeend",`<div class="career-card"><h3>경력 ${i}${i===1?" · 최근 경력":""}</h3><div class="form-group"><label for="careerCompany${i}">회사명 또는 근무지</label><input id="careerCompany${i}" name="careerCompany${i}"></div><div class="form-row"><div class="form-group"><label for="careerPeriod${i}">근무기간</label><input id="careerPeriod${i}" name="careerPeriod${i}" placeholder="예: 2024.01 ~ 2025.06"></div><div class="form-group"><label for="careerJob${i}">담당업무</label><input id="careerJob${i}" name="careerJob${i}" placeholder="예: 생산, 검사, 포장"></div></div><div class="form-group"><label for="careerReason${i}">퇴사사유</label><input id="careerReason${i}" name="careerReason${i}"></div></div>`)}
+function careerCards(){const c=$("careerContainer");for(let i=1;i<=3;i++)c.insertAdjacentHTML("beforeend",`<div class="career-card"><h3>경력 ${i}${i===1?" · 최근 경력":""}</h3><div class="form-group"><label for="careerCompany${i}">회사명 또는 근무지</label><input id="careerCompany${i}" name="careerCompany${i}"></div><div class="form-row"><div class="form-group"><label for="careerPeriod${i}">근무기간</label><input id="careerPeriod${i}" name="careerPeriod${i}" placeholder="예: 2024.01 ~ 2025.06"></div><div class="form-group"><label for="careerJob${i}">담당업무</label><input id="careerJob${i}" name="careerJob${i}" placeholder="예: 생산, 검사, 포장"></div></div><div class="form-row"><div class="form-group"><label for="careerEmploymentType${i}">근무형태</label><input id="careerEmploymentType${i}" name="careerEmploymentType${i}" placeholder="아르바이트·계약·정규·도급"></div><div class="form-group"><label for="careerReason${i}">퇴사사유</label><input id="careerReason${i}" name="careerReason${i}"></div></div></div>`)}
 function show(n){current=n;steps.forEach(s=>s.classList.toggle("active",Number(s.dataset.step)===n));$("currentStepText").textContent=names[n];$("currentStepNumber").textContent=n;$("progressBarFill").style.width=`${n/6*100}%`;if(n===5){requestAnimationFrame(()=>requestAnimationFrame(resizeSignatureCanvas))}if(n===6){renderPreview();window.RecruitUpload?.renderFinalUploadPreview()}window.scrollTo({top:0,behavior:"smooth"})}
 function error(id,msg=""){$(id).textContent=msg}
 function dateValid(v){if(!/^\d{4}-\d{2}-\d{2}$/.test(v))return false;const [y,m,d]=v.split("-").map(Number),x=new Date(y,m-1,d);return x.getFullYear()===y&&x.getMonth()===m-1&&x.getDate()===d}
@@ -14,7 +14,19 @@ function validate5(){error("privacyConsentError");error("signatureError");let ok
 function val(id){return $(id)?.value.trim()||"미입력"}function selected(name){return form.querySelector(`[name="${name}"]:checked`)?.value||"미선택"}
 function section(title,rows){return `<section class="preview-section"><h3>${title}</h3><dl>${rows.map(([a,b])=>`<div class="preview-row"><dt>${a}</dt><dd>${escapeHtml(b)}</dd></div>`).join("")}</dl></section>`}
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-function renderPreview(){const careers=[];for(let i=1;i<=3;i++){const company=val(`careerCompany${i}`);if(company!=="미입력")careers.push(`${company} / ${val(`careerPeriod${i}`)} / ${val(`careerJob${i}`)}`)}$("finalPreview").innerHTML=section("기본정보",[["성명",val("koreanName")],["휴대전화",val("phone")],["생년월일",val("birthDate")],["성별",selected("gender")],["주소",val("address")]])+section("학력·경력",[["학교명",val("schoolName")],["졸업년도",val("graduationYear")],["경력",careers.join("\n")||"미입력"]])+section("근무조건",[["근무형태",selected("workType")],["출퇴근",selected("commuteType")],["통근버스 탑승 위치",selected("commuteType")==="통근버스"?val("shuttleLocation"):"해당 없음"],["희망 고용 방식",selected("insurancePreference")],["출근 가능일",val("availableStartDate")],["요청사항",val("workConditionNote")]])}
+function renderPreview(){
+  const careers=[];
+  for(let i=1;i<=3;i++){
+    const values=[val(`careerCompany${i}`),val(`careerPeriod${i}`),val(`careerJob${i}`),val(`careerEmploymentType${i}`),val(`careerReason${i}`)];
+    if(values.some(v=>v!=="미입력")) careers.push(`경력 ${i}: ${values.join(" / ")}`);
+  }
+  $("finalPreview").innerHTML=
+    section("기본정보",[["성명",val("koreanName")],["휴대전화",val("phone")],["생년월일",val("birthDate")],["만 나이",val("age")],["성별",selected("gender")],["주소",val("address")],["비상연락처",val("emergencyPhone")]])+
+    section("건강정보",[["건강상태",selected("healthStatus")],["병력 및 특이사항",val("medicalHistory")],["교정시력",val("correctedVision")]])+
+    section("학력·경력",[["학교명",val("schoolName")],["졸업년도",val("graduationYear")],["경력",careers.join("\n")||"미입력"]])+
+    section("근무조건",[["희망 근무형태",selected("workType")],["근무형태",selected("employmentType")],["잔업 가능",selected("overtimeAvailable")],["특근 가능",selected("weekendAvailable")],["출퇴근",selected("commuteType")],["통근버스 탑승 위치",selected("commuteType")==="통근버스"?val("shuttleLocation"):"해당 없음"],["희망 고용 방식",selected("insurancePreference")],["출근 가능일",val("availableStartDate")],["요청사항",val("workConditionNote")]])+
+    section("동의",[["개인정보 수집·이용",$("privacyConsent").checked?"동의":"미동의"]]);
+}
 document.querySelectorAll("[data-next]").forEach(b=>b.onclick=()=>{
   const n=Number(b.dataset.next);
   if(current===1&&!validate1())return;
@@ -174,7 +186,7 @@ $("finalSubmitButton").onclick=async()=>{
   btn.textContent="제출 중...";
   try{
     const payload={
-      version:window.RECRUIT_CONFIG?.version||"v1.3.9",
+      version:window.RECRUIT_CONFIG?.version||"v2.0.0",
       submittedAt:new Date().toISOString(),
       applicantName:val("koreanName"),
       phone:val("phone"),

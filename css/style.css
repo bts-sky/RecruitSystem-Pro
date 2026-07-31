@@ -107,3 +107,9 @@
   pointer-events:none;
   white-space:nowrap;
 }
+
+/* v2.0.0 얼굴 중심 소형 3:4 저장 프레임 */
+.crop-guide{width:44%!important;height:44%!important;left:28%!important;top:28%!important;}
+.face-guide{width:62%!important;height:46%!important;left:19%!important;top:10%!important;}
+.crop-stage::after{content:"얼굴 중심 3:4 저장 영역"!important;top:calc(28% + 7px)!important;font-size:11px;}
+.preview-row dd{white-space:pre-line;}

@@ -22,10 +22,10 @@ function setupSystem() {
 
     const sheet = spreadsheet.getSheets()[0];
     sheet.setName(SYSTEM.SHEET_NAME);
-    sheet.getRange(1, 1, 1, 26).setValues([[
+    sheet.getRange(1, 1, 1, 32).setValues([[
       "접수번호", "접수일시", "성명", "휴대전화", "생년월일", "만 나이",
-      "성별", "주소", "비상연락처", "졸업년도", "학교명",
-      "경력1", "경력2", "경력3", "희망근무형태", "출퇴근방법", "통근버스탑승위치",
+      "성별", "주소", "비상연락처", "건강상태", "병력및특이사항", "교정시력", "졸업년도", "학교명",
+      "경력1", "경력2", "경력3", "희망근무형태", "근무형태", "잔업가능", "특근가능", "출퇴근방법", "통근버스탑승위치",
       "희망고용방식", "출근가능일", "추가요청사항", "개인정보동의", "지원자폴더",
       "사진파일", "이력서파일", "상태", "버전"
     ]]);
@@ -43,7 +43,7 @@ function doGet() {
   return jsonResponse_({
     ok: true,
     service: "RecruitSystem-Pro",
-    version: "v1.3.6",
+    version: "v2.0.1",
     message: "Backend is running."
   });
 }
@@ -113,12 +113,18 @@ function doPost(e) {
       cleanText_(form.gender),
       cleanText_(form.address),
       cleanText_(form.emergencyPhone),
+      cleanText_(form.healthStatus),
+      cleanText_(form.medicalHistory),
+      cleanText_(form.correctedVision),
       cleanText_(form.graduationYear),
       cleanText_(form.schoolName),
       careerText_(form, 1),
       careerText_(form, 2),
       careerText_(form, 3),
       cleanText_(form.workType),
+      cleanText_(form.employmentType),
+      cleanText_(form.overtimeAvailable),
+      cleanText_(form.weekendAvailable),
       cleanText_(form.commuteType),
       cleanText_(form.shuttleLocation),
       cleanText_(form.insurancePreference),
@@ -129,7 +135,7 @@ function doPost(e) {
       photoFile ? photoFile.getUrl() : "",
       resumeFile ? resumeFile.getUrl() : "",
       "신규지원",
-      cleanText_(data.version || "v1.3.6")
+      cleanText_(data.version || "v2.0.1")
     ]);
 
     return jsonResponse_({
@@ -171,9 +177,10 @@ function careerText_(form, index) {
   const company = cleanText_(form["careerCompany" + index]);
   const period = cleanText_(form["careerPeriod" + index]);
   const job = cleanText_(form["careerJob" + index]);
+  const employmentType = cleanText_(form["careerEmploymentType" + index]);
   const reason = cleanText_(form["careerReason" + index]);
-  if (!company && !period && !job && !reason) return "";
-  return [company, period, job, reason].filter(Boolean).join(" / ");
+  if (!company && !period && !job && !employmentType && !reason) return "";
+  return [company, period, job, employmentType, reason].filter(Boolean).join(" / ");
 }
 
 function createApplicationId_() {

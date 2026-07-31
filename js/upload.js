@@ -4,7 +4,7 @@
   const OUTPUT_WIDTH = 600;
   const OUTPUT_HEIGHT = 800;
   // 화면 중앙의 3:4 점선 프레임만 최종 사진으로 저장합니다.
-  const CROP_FRAME_RATIO = 0.60;
+  const CROP_FRAME_RATIO = 0.44;
   const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
   const MAX_RESUME_BYTES = 15 * 1024 * 1024;
 
@@ -136,7 +136,7 @@
       crop.height / state.workingCanvas.height
     );
     state.maxScale = state.minScale * 4;
-    state.scale = Math.min(state.maxScale, state.minScale * 2);
+    state.scale = Math.min(state.maxScale, state.minScale * 2.6);
     state.offsetX = crop.x + (crop.width - state.workingCanvas.width * state.scale) / 2;
     state.offsetY = crop.y + (crop.height - state.workingCanvas.height * state.scale) / 2;
 
