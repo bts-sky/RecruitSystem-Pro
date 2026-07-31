@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="description" content="(주)하늘컴퍼니 모바일 입사지원서">
   <title>입사지원서 | (주)하늘컴퍼니</title>
-  <link rel="stylesheet" href="./css/style.css?v=2.0.1">
+  <link rel="stylesheet" href="./css/style.css?v=2.2.1">
 </head>
 <body>
 <div class="app-container">
   <header class="app-header">
     <div class="brand-row">
       <div class="brand-symbol">H</div>
-      <div><strong>(주)하늘컴퍼니</strong><span>채용관리 시스템 v2.0.1</span></div>
+      <div><strong>(주)하늘컴퍼니</strong><span>채용관리 시스템 v2.2.1</span></div>
     </div>
     <h1>모바일 입사지원서</h1>
     <p>아래 내용을 정확하게 작성해 주세요.</p>
@@ -38,6 +38,11 @@
         </div>
         <fieldset class="form-group"><legend>성별 *</legend><div class="choice-grid"><label><input type="radio" name="gender" value="남성"><span>남성</span></label><label><input type="radio" name="gender" value="여성"><span>여성</span></label></div><p class="field-error" id="genderError"></p></fieldset>
         <div class="form-group"><label for="address">현재 주소 *</label><input id="address" name="address" required><p class="field-error" id="addressError"></p></div>
+        <div class="form-row">
+          <div class="form-group"><label for="nationality">국적 *</label><select id="nationality" name="nationality" required><option value="">선택해 주세요</option><option value="대한민국">대한민국</option><option value="베트남">베트남</option><option value="중국">중국</option><option value="필리핀">필리핀</option><option value="태국">태국</option><option value="네팔">네팔</option><option value="캄보디아">캄보디아</option><option value="인도네시아">인도네시아</option><option value="기타">기타</option></select><p class="field-error" id="nationalityError"></p></div>
+          <div class="form-group hidden" id="nationalityOtherGroup"><label for="nationalityOther">기타 국적 *</label><input id="nationalityOther" name="nationalityOther" placeholder="국가명을 입력해 주세요"><p class="field-error" id="nationalityOtherError"></p></div>
+        </div>
+        <fieldset class="form-group"><legend>병역사항 *</legend><div class="choice-grid military-grid"><label><input type="radio" name="militaryStatus" value="군필"><span>군필</span></label><label><input type="radio" name="militaryStatus" value="미필"><span>미필</span></label><label><input type="radio" name="militaryStatus" value="면제"><span>면제</span></label><label><input type="radio" name="militaryStatus" value="해당없음"><span>해당없음</span></label></div><p class="field-error" id="militaryStatusError"></p></fieldset>
         <div class="form-group"><label for="emergencyPhone">비상연락처</label><input id="emergencyPhone" name="emergencyPhone" type="tel" inputmode="numeric" maxlength="13"></div>
         <fieldset class="form-group"><legend>건강상태</legend><div class="choice-grid"><label><input type="radio" name="healthStatus" value="양호"><span>양호</span></label><label><input type="radio" name="healthStatus" value="보통"><span>보통</span></label><label><input type="radio" name="healthStatus" value="치료 중"><span>치료 중</span></label><label><input type="radio" name="healthStatus" value="기타"><span>기타</span></label></div></fieldset>
         <div class="form-group"><label for="medicalHistory">병력 및 특이사항</label><textarea id="medicalHistory" name="medicalHistory" rows="3" placeholder="업무 배치 시 참고할 내용이 있는 경우에만 입력해 주세요."></textarea></div>
@@ -143,7 +148,7 @@
         <p class="field-error" id="privacyConsentError"></p>
         <div class="signature-card">
           <div class="signature-head"><strong>전자서명 *</strong><button type="button" class="text-button" id="clearSignatureButton">지우기</button></div>
-          <div class="signature-wrap"><canvas id="signatureCanvas"></canvas><span id="signaturePlaceholder">손가락 또는 마우스로 서명해 주세요.</span></div>
+          <div class="signature-wrap"><canvas id="signatureCanvas"></canvas><div class="signature-guide" aria-hidden="true"><span>서명 영역</span></div><span id="signaturePlaceholder">점선 서명 영역 안에 서명해 주세요.</span></div>
           <input type="hidden" id="signatureData" name="signatureData">
           <p class="field-error" id="signatureError"></p>
         </div>
@@ -190,8 +195,8 @@
   </div>
 </div>
 
-<script src="./js/config.js?v=1.4.0"></script>
-<script src="./js/upload.js?v=1.4.0"></script>
-<script src="./js/script.js?v=1.4.0"></script>
+<script src="./js/config.js?v=2.2.1"></script>
+<script src="./js/upload.js?v=2.2.1"></script>
+<script src="./js/script.js?v=2.2.1"></script>
 </body>
 </html>
