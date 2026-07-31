@@ -8,9 +8,10 @@ function careerCards(){const c=$("careerContainer");for(let i=1;i<=3;i++)c.inser
 function show(n){current=n;steps.forEach(s=>s.classList.toggle("active",Number(s.dataset.step)===n));$("currentStepText").textContent=names[n];$("currentStepNumber").textContent=n;$("progressBarFill").style.width=`${n/6*100}%`;if(n===5){requestAnimationFrame(()=>requestAnimationFrame(resizeSignatureCanvas))}if(n===6){renderPreview();window.RecruitUpload?.renderFinalUploadPreview()}window.scrollTo({top:0,behavior:"smooth"})}
 function error(id,msg=""){$(id).textContent=msg}
 function dateValid(v){if(!/^\d{4}-\d{2}-\d{2}$/.test(v))return false;const [y,m,d]=v.split("-").map(Number),x=new Date(y,m-1,d);return x.getFullYear()===y&&x.getMonth()===m-1&&x.getDate()===d}
-function validate1(){["koreanNameError","phoneError","birthDateError","genderError","addressError","nationalityError","nationalityOtherError","militaryStatusError"].forEach(x=>error(x));let ok=true;if(!$("koreanName").value.trim()){error("koreanNameError","성명을 입력해 주세요.");ok=false}if(!/^010-\d{4}-\d{4}$/.test($("phone").value)){error("phoneError","휴대전화 번호를 정확히 입력해 주세요.");ok=false}if(!dateValid($("birthDate").value)){error("birthDateError","생년월일을 YYYY-MM-DD 형식으로 입력해 주세요.");ok=false}if(!form.querySelector('[name="gender"]:checked')){error("genderError","성별을 선택해 주세요.");ok=false}if(!$("address").value.trim()){error("addressError","주소를 입력해 주세요.");ok=false}
+function validate1(){["koreanNameError","phoneError","birthDateError","genderError","addressError","nationalityError","nationalityOtherError","visaError","militaryStatusError"].forEach(x=>error(x));let ok=true;if(!$("koreanName").value.trim()){error("koreanNameError","성명을 입력해 주세요.");ok=false}if(!/^010-\d{4}-\d{4}$/.test($("phone").value)){error("phoneError","휴대전화 번호를 정확히 입력해 주세요.");ok=false}if(!dateValid($("birthDate").value)){error("birthDateError","생년월일을 YYYY-MM-DD 형식으로 입력해 주세요.");ok=false}if(!form.querySelector('[name="gender"]:checked')){error("genderError","성별을 선택해 주세요.");ok=false}if(!$("address").value.trim()){error("addressError","주소를 입력해 주세요.");ok=false}
 if(!$("nationality").value){error("nationalityError","국적을 선택해 주세요.");ok=false}
 if($("nationality").value==="기타"&&!$("nationalityOther").value.trim()){error("nationalityOtherError","국가명을 입력해 주세요.");ok=false}
+if($("nationality").value&&$("nationality").value!=="대한민국"&&!$("visa").value){error("visaError","비자 종류를 선택해 주세요.");ok=false}
 if(!form.querySelector('[name="militaryStatus"]:checked')){error("militaryStatusError","병역사항을 선택해 주세요.");ok=false}
 return ok}
 function validate4(){if(!window.RecruitUpload?.getMetadata().hasPhoto){error("profilePhotoError","사진을 선택하고 ‘이 사진 사용’을 눌러 확정해 주세요.");return false}return true}
@@ -25,10 +26,10 @@ function renderPreview(){
     if(values.some(v=>v!=="미입력")) careers.push(`경력 ${i}: ${values.join(" / ")}`);
   }
   $("finalPreview").innerHTML=
-    section("기본정보",[["성명",val("koreanName")],["휴대전화",val("phone")],["생년월일",val("birthDate")],["만 나이",val("age")],["성별",selected("gender")],["국적",$("nationality").value==="기타"?val("nationalityOther"):val("nationality")],["병역사항",selected("militaryStatus")],["주소",val("address")],["비상연락처",val("emergencyPhone")]])+
+    section("기본정보",[["성명",val("koreanName")],["휴대전화",val("phone")],["생년월일",val("birthDate")],["만 나이",val("age")],["성별",selected("gender")],["국적",$("nationality").value==="기타"?val("nationalityOther"):val("nationality")],["비자",$("nationality").value&&$("nationality").value!=="대한민국"?val("visa"):"해당 없음"],["병역사항",selected("militaryStatus")],["주소",val("address")],["비상연락처",val("emergencyPhone")]])+
     section("건강정보",[["건강상태",selected("healthStatus")],["병력 및 특이사항",val("medicalHistory")],["교정시력",val("correctedVision")]])+
     section("학력·경력",[["학교명",val("schoolName")],["졸업년도",val("graduationYear")],["경력",careers.join("\n")||"미입력"]])+
-    section("근무조건",[["희망 근무형태",selected("workType")],["근무형태",selected("employmentType")],["잔업 가능",selected("overtimeAvailable")],["특근 가능",selected("weekendAvailable")],["출퇴근",selected("commuteType")],["통근버스 탑승 위치",selected("commuteType")==="통근버스"?val("shuttleLocation"):"해당 없음"],["출근 가능일",val("availableStartDate")],["요청사항",val("workConditionNote")]])+
+    section("근무조건",[["근무형태",selected("workType")],["잔업 가능",selected("overtimeAvailable")],["특근 가능",selected("weekendAvailable")],["출퇴근",selected("commuteType")],["통근버스 탑승 위치",selected("commuteType")==="통근버스"?val("shuttleLocation"):"해당 없음"],["작업복 치수",`키 ${val("height")}cm / 몸무게 ${val("weight")}kg`],["급여통장",`${val("bankName")} / ${val("accountNumber")} / 예금주 ${val("accountHolder")}`],["출근 가능일",val("availableStartDate")],["요청사항",val("workConditionNote")]])+
     section("동의",[["개인정보 수집·이용",$("privacyConsent").checked?"동의":"미동의"]]);
 }
 document.querySelectorAll("[data-next]").forEach(b=>b.onclick=()=>{
@@ -67,6 +68,10 @@ function updateNationalityOther(){
   $("nationalityOtherGroup").classList.toggle("hidden",!other);
   $("nationalityOther").required=other;
   if(!other){$("nationalityOther").value="";error("nationalityOtherError");}
+  const needsVisa=Boolean(nationalitySelect.value&&nationalitySelect.value!=="대한민국");
+  $("visaGroup").classList.toggle("hidden",!needsVisa);
+  $("visa").required=needsVisa;
+  if(!needsVisa){$("visa").value="";error("visaError");}
 }
 nationalitySelect.addEventListener("change",updateNationalityOther);
 $("step4NextButton").onclick=()=>{if(validate4())show(5)};
@@ -216,7 +221,7 @@ $("finalSubmitButton").onclick=async()=>{
   btn.textContent="제출 중...";
   try{
     const payload={
-      version:"v2.2.1",
+      version:"v2.3.0",
       submittedAt:new Date().toISOString(),
       applicantName:val("koreanName"),
       phone:val("phone"),

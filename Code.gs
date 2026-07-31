@@ -2,7 +2,7 @@ const SYSTEM = {
   ROOT_FOLDER_NAME: "하늘컴퍼니_지원자관리",
   SPREADSHEET_NAME: "하늘컴퍼니_지원자목록",
   SHEET_NAME: "지원자목록",
-  VERSION: "v2.2.1"
+  VERSION: "v2.3.0"
 };
 
 const SHEET_HEADERS = [
@@ -10,7 +10,8 @@ const SHEET_HEADERS = [
   "성별", "주소", "비상연락처", "건강상태", "병력및특이사항", "교정시력", "졸업년도", "학교명",
   "경력1", "경력2", "경력3", "희망근무형태", "근무형태", "잔업가능", "특근가능", "출퇴근방법", "통근버스탑승위치",
   "희망고용방식", "출근가능일", "추가요청사항", "개인정보동의", "지원자폴더",
-  "사진파일", "이력서파일", "서명파일", "지원서PDF", "상태", "버전", "국적", "병역사항"
+  "사진파일", "이력서파일", "서명파일", "지원서PDF", "상태", "버전", "국적", "병역사항",
+  "비자", "키", "몸무게", "은행", "계좌번호", "예금주"
 ];
 
 function setupSystem() {
@@ -158,7 +159,13 @@ function doPost(e) {
       "신규지원",
       cleanText_(data.version || SYSTEM.VERSION),
       nationalityText_(form),
-      cleanText_(form.militaryStatus)
+      cleanText_(form.militaryStatus),
+      cleanText_(form.visa),
+      cleanText_(form.height),
+      cleanText_(form.weight),
+      cleanText_(form.bankName),
+      cleanText_(form.accountNumber),
+      cleanText_(form.accountHolder)
     ]);
 
     return jsonResponse_({
@@ -199,14 +206,6 @@ function createApplicationPdf_(folder, applicationId, form, photoFile, signature
   title.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
   title.setSpacingBefore(0).setSpacingAfter(1);
   title.editAsText().setFontFamily("Malgun Gothic").setFontSize(21).setBold(true);
-
-  const meta = body.appendParagraph(
-    "접수번호 " + applicationId + "  |  접수일시 " +
-    Utilities.formatDate(submittedAt, timezone, "yyyy-MM-dd HH:mm:ss")
-  );
-  meta.setAlignment(DocumentApp.HorizontalAlignment.RIGHT);
-  meta.setSpacingBefore(0).setSpacingAfter(1);
-  meta.editAsText().setFontFamily("Malgun Gothic").setFontSize(6.5);
 
   const top = body.appendTable([["", ""]]);
   styleTable_(top, 1);
@@ -297,8 +296,8 @@ function createApplicationPdf_(folder, applicationId, form, photoFile, signature
   appendGap_(body, 1);
   // 희망고용방식은 스프레드시트/관리자에서만 확인하고 PDF에는 출력하지 않는다.
   const work = body.appendTable([
-    ["근무 형태", joinValues_([form.workType, form.employmentType]), "출근가능일", cleanText_(form.availableStartDate), "통근버스 탑승위치", cleanText_(form.shuttleLocation)],
-    ["잔업 / 특근", joinValues_([yesNoText_(form.overtimeAvailable), yesNoText_(form.weekendAvailable)]), "추가 요청사항", cleanText_(form.workConditionNote), "국적", nationalityText_(form)],
+    ["근무 형태", cleanText_(form.workType), "출근가능일", cleanText_(form.availableStartDate), "통근버스 탑승위치", cleanText_(form.shuttleLocation)],
+    ["작업복 치수", joinValues_([form.height ? "키 " + form.height + "cm" : "", form.weight ? "몸무게 " + form.weight + "kg" : ""]), "급여통장", joinValues_([form.bankName, form.accountNumber, form.accountHolder ? "예금주 " + form.accountHolder : ""]), "잔업 / 특근", joinValues_([yesNoText_(form.overtimeAvailable), yesNoText_(form.weekendAvailable)])],
     ["특이사항", "", "", "", "", ""]
   ]);
   styleTable_(work, 0.9);
@@ -306,7 +305,8 @@ function createApplicationPdf_(folder, applicationId, form, photoFile, signature
   formatGrid_(work, {fontSize: 7.1, labelColumns: [0,2,4], minHeight: 20});
   mergeCellsInRow_(work.getRow(2), 5);
   const special = "건강상태: " + cleanText_(form.healthStatus) +
-    "\n비양호 시 상세기재: " + cleanText_(form.medicalHistory);
+    "\n비양호 시 상세기재: " + cleanText_(form.medicalHistory) +
+    "\n추가 요청사항: " + cleanText_(form.workConditionNote);
   setCellText_(work.getRow(2).getCell(1), special, {fontSize: 7.5, bold: false, align: "LEFT"});
   work.getRow(2).getCell(1).setBackgroundColor("#92d050");
   work.getRow(2).setMinimumHeight(42);

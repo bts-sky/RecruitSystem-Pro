@@ -121,3 +121,10 @@
 .signature-wrap.has-signature #signaturePlaceholder{display:none}
 .military-grid{grid-template-columns:repeat(4,1fr)}
 @media(max-width:520px){.military-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* v2.3.0 */
+.work-type-grid{grid-template-columns:repeat(3,1fr)}
+.details-panel{background:#f8fafc}
+.details-panel>.form-row,.details-panel>.form-group{margin-top:12px}
+.compact-fields .form-group{margin-bottom:0}
+@media(max-width:520px){.work-type-grid{grid-template-columns:repeat(3,1fr)}}
