@@ -4,7 +4,7 @@ const form=document.getElementById("applicationForm"),steps=[...document.querySe
 const names={1:"기본정보",2:"학력 및 경력사항",3:"근무조건",4:"사진 및 이력서",5:"개인정보 동의 및 서명",6:"최종 확인"};
 let current=1,hasSignature=false;
 const $=id=>document.getElementById(id);
-const FRONTEND_VERSION="v5.5.3-validation";
+const FRONTEND_VERSION="v5.5.5-graduation-auto";
 const OPTIONAL_IDS=new Set(["age","resumeFile","signatureData","workConditionNote"]);
 const CONDITIONAL_IDS=new Set(["nationalityOther","visa","shuttleLocation","medicalHistory"]);
 function insertAfter(reference,node){reference?.parentNode?.insertBefore(node,reference.nextSibling)}
@@ -52,9 +52,69 @@ function updateConditionalRequired(){
   if($("shuttleLocation"))$("shuttleLocation").required=selected("commuteType")==="통근버스";
   if($("medicalHistory")){
     const health=selected("healthStatus");
-    $("medicalHistory").required=health==="치료중"||health==="기타";
+    $("medicalHistory").required=health==="치료 중"||health==="기타";
   }
 }
+
+function calculateExpectedGraduationYear(birthDateValue){
+  const raw=String(birthDateValue||"").trim();
+  if(!raw)return "";
+  const yearMatch=raw.match(/^(\d{4})/);
+  if(!yearMatch)return "";
+  const birthYear=Number(yearMatch[1]);
+  if(!Number.isInteger(birthYear)||birthYear<1900||birthYear>2100)return "";
+  return String(birthYear+19);
+}
+function applyExpectedGraduationYear(force=false){
+  const birth=$("birthDate");
+  const graduation=$("graduationYear");
+  if(!birth||!graduation)return;
+
+  const expected=calculateExpectedGraduationYear(birth.value);
+  if(!expected)return;
+
+  const previousAuto=graduation.dataset.autoValue||"";
+  const userEdited=graduation.dataset.userEdited==="true";
+
+  if(force||!graduation.value||graduation.value===previousAuto||!userEdited){
+    graduation.value=expected;
+    graduation.dataset.autoValue=expected;
+    graduation.dataset.userEdited="false";
+    graduation.dispatchEvent(new Event("input",{bubbles:true}));
+    graduation.dispatchEvent(new Event("change",{bubbles:true}));
+  }
+
+  let note=$("graduationYearAutoNote");
+  if(!note){
+    note=document.createElement("p");
+    note.id="graduationYearAutoNote";
+    note.className="field-help";
+    graduation.closest(".form-group")?.appendChild(note);
+  }
+  if(note){
+    note.textContent=`생년월일 기준 예상 졸업연도 ${expected}년이 자동 입력되었습니다. 실제 졸업연도가 다르면 직접 수정해 주세요.`;
+  }
+}
+function installGraduationYearAutoFill(){
+  const birth=$("birthDate");
+  const graduation=$("graduationYear");
+  if(!birth||!graduation)return;
+
+  graduation.addEventListener("input",()=>{
+    const autoValue=graduation.dataset.autoValue||"";
+    if(graduation.value!==autoValue){
+      graduation.dataset.userEdited="true";
+    }
+  });
+
+  birth.addEventListener("change",()=>applyExpectedGraduationYear(false));
+  birth.addEventListener("blur",()=>applyExpectedGraduationYear(false));
+
+  if(birth.value){
+    applyExpectedGraduationYear(false);
+  }
+}
+
 function validateCareerRows(){
   for(let i=1;i<=3;i++){
     const fields=[`careerCompany${i}`,`careerPeriod${i}`,`careerJob${i}`,`careerEmploymentType${i}`,`careerReason${i}`].map($);
@@ -358,5 +418,5 @@ $("finalSubmitButton").onclick=async()=>{
     btn.textContent="최종 제출";
   }
 };
-ensureAdditionalFields();careerCards();markAllRequired();updateConditionalRequired();updateShuttleLocation();updateNationalityOther();show(1);
+ensureAdditionalFields();careerCards();markAllRequired();updateConditionalRequired();installGraduationYearAutoFill();updateShuttleLocation();updateNationalityOther();show(1);
 });
