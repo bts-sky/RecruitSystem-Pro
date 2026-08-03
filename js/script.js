@@ -4,7 +4,7 @@ const form=document.getElementById("applicationForm"),steps=[...document.querySe
 const names={1:"기본정보",2:"학력 및 경력사항",3:"근무조건",4:"사진 및 이력서",5:"개인정보 동의 및 서명",6:"최종 확인"};
 let current=1,hasSignature=false;
 const $=id=>document.getElementById(id);
-const FRONTEND_VERSION="v5.5.7-military-reason";
+const FRONTEND_VERSION="v5.5.8-military-cache-fix";
 const OPTIONAL_IDS=new Set(["age","resumeFile","signatureData","workConditionNote"]);
 const CONDITIONAL_IDS=new Set(["nationalityOther","visa","shuttleLocation","medicalHistory","militaryReason"]);
 function insertAfter(reference,node){reference?.parentNode?.insertBefore(node,reference.nextSibling)}
@@ -16,9 +16,14 @@ function ensureAdditionalFields(){
     insertAfter(gender,node);
   }
   if(!$("militaryReason")){
-    const militaryFieldset=form.querySelector('[name="militaryStatus"]')?.closest("fieldset");
-    const node=htmlNode(`<div class="form-group hidden" id="militaryReasonGroup"><label for="militaryReason">미필·면제 사유 *</label><input id="militaryReason" name="militaryReason" placeholder="미필 또는 면제 사유를 입력해 주세요"><p class="field-help">군필 선택 시에는 입력하지 않습니다.</p><p class="field-error" id="militaryReasonError"></p></div>`);
-    insertAfter(militaryFieldset,node);
+    const militaryInput=form.querySelector('[name="militaryStatus"]');
+    const militaryFieldset=militaryInput?.closest("fieldset");
+    const node=htmlNode(`<div class="form-group hidden" id="militaryReasonGroup"><label for="militaryReason">미필·면제 사유 *</label><input id="militaryReason" name="militaryReason" placeholder="미필 또는 면제 사유를 입력해 주세요"><p class="field-help">군필 또는 해당없음 선택 시에는 입력하지 않습니다.</p><p class="field-error" id="militaryReasonError"></p></div>`);
+    if(militaryFieldset&&militaryFieldset.parentNode){
+      militaryFieldset.insertAdjacentElement("afterend",node);
+    }else{
+      console.error("병역사항 영역을 찾지 못했습니다.");
+    }
   }
   if(!$("emergencyRelation")){
     const emergency=$("emergencyPhone")?.closest(".form-group");
