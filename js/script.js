@@ -4,9 +4,9 @@ const form=document.getElementById("applicationForm"),steps=[...document.querySe
 const names={1:"기본정보",2:"학력 및 경력사항",3:"근무조건",4:"사진 및 이력서",5:"개인정보 동의 및 서명",6:"최종 확인"};
 let current=1,hasSignature=false;
 const $=id=>document.getElementById(id);
-const FRONTEND_VERSION="v5.5.5-graduation-auto";
+const FRONTEND_VERSION="v5.5.7-military-reason";
 const OPTIONAL_IDS=new Set(["age","resumeFile","signatureData","workConditionNote"]);
-const CONDITIONAL_IDS=new Set(["nationalityOther","visa","shuttleLocation","medicalHistory"]);
+const CONDITIONAL_IDS=new Set(["nationalityOther","visa","shuttleLocation","medicalHistory","militaryReason"]);
 function insertAfter(reference,node){reference?.parentNode?.insertBefore(node,reference.nextSibling)}
 function htmlNode(html){const box=document.createElement("div");box.innerHTML=html.trim();return box.firstElementChild}
 function ensureAdditionalFields(){
@@ -14,6 +14,11 @@ function ensureAdditionalFields(){
     const gender=form.querySelector('[name="gender"]')?.closest("fieldset");
     const node=htmlNode(`<fieldset class="form-group" id="maritalStatusField"><legend>결혼 여부 *</legend><div class="choice-grid"><label><input type="radio" name="maritalStatus" value="미혼"><span>미혼</span></label><label><input type="radio" name="maritalStatus" value="기혼"><span>기혼</span></label><label><input type="radio" name="maritalStatus" value="기타"><span>기타</span></label></div><p class="field-error" id="maritalStatusError"></p></fieldset>`);
     insertAfter(gender,node);
+  }
+  if(!$("militaryReason")){
+    const militaryFieldset=form.querySelector('[name="militaryStatus"]')?.closest("fieldset");
+    const node=htmlNode(`<div class="form-group hidden" id="militaryReasonGroup"><label for="militaryReason">미필·면제 사유 *</label><input id="militaryReason" name="militaryReason" placeholder="미필 또는 면제 사유를 입력해 주세요"><p class="field-help">군필 선택 시에는 입력하지 않습니다.</p><p class="field-error" id="militaryReasonError"></p></div>`);
+    insertAfter(militaryFieldset,node);
   }
   if(!$("emergencyRelation")){
     const emergency=$("emergencyPhone")?.closest(".form-group");
@@ -45,6 +50,23 @@ function markAllRequired(){
     if(label&&!label.textContent.includes("*"))label.append(" *");
   });
 }
+
+function updateMilitaryReason(){
+  const status=selected("militaryStatus");
+  const group=$("militaryReasonGroup");
+  const input=$("militaryReason");
+  const required=status==="미필"||status==="면제";
+
+  group?.classList.toggle("hidden",!required);
+  if(input){
+    input.required=required;
+    if(!required){
+      input.value="";
+      error("militaryReasonError");
+    }
+  }
+}
+
 function updateConditionalRequired(){
   const foreign=Boolean($("nationality")?.value&&$("nationality").value!=="대한민국");
   if($("visa"))$("visa").required=foreign;
@@ -54,6 +76,7 @@ function updateConditionalRequired(){
     const health=selected("healthStatus");
     $("medicalHistory").required=health==="치료 중"||health==="기타";
   }
+  updateMilitaryReason();
 }
 
 function calculateExpectedGraduationYear(birthDateValue){
@@ -194,7 +217,7 @@ function renderPreview(){
     if(values.some(v=>v!=="미입력")) careers.push(`경력 ${i}: ${values.join(" / ")}`);
   }
   $("finalPreview").innerHTML=
-    section("기본정보",[["성명",val("koreanName")],["휴대전화",val("phone")],["생년월일",val("birthDate")],["만 나이",val("age")],["성별",selected("gender")],["결혼 여부",selected("maritalStatus")],["국적",$("nationality").value==="기타"?val("nationalityOther"):val("nationality")],["비자",$("nationality").value&&$("nationality").value!=="대한민국"?val("visa"):"해당 없음"],["병역사항",selected("militaryStatus")],["주소",val("address")],["비상연락처",val("emergencyPhone")],["비상연락처 관계",val("emergencyRelation")]])+
+    section("기본정보",[["성명",val("koreanName")],["휴대전화",val("phone")],["생년월일",val("birthDate")],["만 나이",val("age")],["성별",selected("gender")],["결혼 여부",selected("maritalStatus")],["국적",$("nationality").value==="기타"?val("nationalityOther"):val("nationality")],["비자",$("nationality").value&&$("nationality").value!=="대한민국"?val("visa"):"해당 없음"],["병역사항",selected("militaryStatus")+(val("militaryReason")?` / 사유: ${val("militaryReason")}`:"")],["주소",val("address")],["비상연락처",val("emergencyPhone")],["비상연락처 관계",val("emergencyRelation")]])+
     section("건강정보",[["건강상태",selected("healthStatus")],["병력 및 특이사항",val("medicalHistory")],["교정시력",val("correctedVision")],["혈액형",val("bloodType")]])+
     section("학력·경력",[["학교명",val("schoolName")],["졸업년도",val("graduationYear")],["경력",careers.join("\n")||"미입력"]])+
     section("근무조건",[["근무형태",selected("workType")],["잔업 가능",selected("overtimeAvailable")],["특근 가능",selected("weekendAvailable")],["출퇴근",selected("commuteType")],["통근버스 탑승 위치",selected("commuteType")==="통근버스"?val("shuttleLocation"):"해당 없음"],["작업복 치수",`키 ${val("height")}cm / 몸무게 ${val("weight")}kg / 신발 ${val("shoeSize")}mm`],["급여통장",`${val("bankName")} / ${val("accountNumber")} / 예금주 ${val("accountHolder")}`],["출근 가능일",val("availableStartDate")],["요청사항",val("workConditionNote")]])+
@@ -244,6 +267,7 @@ function updateNationalityOther(){
 }
 nationalitySelect.addEventListener("change",()=>{updateNationalityOther();updateConditionalRequired()});
 form.querySelectorAll('[name="healthStatus"]').forEach(r=>r.addEventListener("change",updateConditionalRequired));
+form.querySelectorAll('[name="militaryStatus"]').forEach(r=>r.addEventListener("change",updateMilitaryReason));
 $("step4NextButton").onclick=()=>{if(validateRequiredStep(4)&&validate4())show(5)};
 $("step5NextButton").onclick=()=>{if(validateRequiredStep(5)&&validate5())show(6)};
 ["phone","emergencyPhone"].forEach(id=>$(id).addEventListener("input",e=>{const d=e.target.value.replace(/\D/g,"").slice(0,11);e.target.value=d.length<=3?d:d.length<=7?`${d.slice(0,3)}-${d.slice(3)}`:`${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}`}));
