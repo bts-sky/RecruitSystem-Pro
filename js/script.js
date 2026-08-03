@@ -4,9 +4,9 @@ const form=document.getElementById("applicationForm"),steps=[...document.querySe
 const names={1:"기본정보",2:"학력 및 경력사항",3:"근무조건",4:"사진 및 이력서",5:"개인정보 동의 및 서명",6:"최종 확인"};
 let current=1,hasSignature=false;
 const $=id=>document.getElementById(id);
-const FRONTEND_VERSION="v5.5.1-integrated";
-const OPTIONAL_IDS=new Set(["age","resumeFile","signatureData"]);
-const CONDITIONAL_IDS=new Set(["nationalityOther","visa","shuttleLocation"]);
+const FRONTEND_VERSION="v5.5.3-validation";
+const OPTIONAL_IDS=new Set(["age","resumeFile","signatureData","workConditionNote"]);
+const CONDITIONAL_IDS=new Set(["nationalityOther","visa","shuttleLocation","medicalHistory"]);
 function insertAfter(reference,node){reference?.parentNode?.insertBefore(node,reference.nextSibling)}
 function htmlNode(html){const box=document.createElement("div");box.innerHTML=html.trim();return box.firstElementChild}
 function ensureAdditionalFields(){
@@ -50,6 +50,10 @@ function updateConditionalRequired(){
   if($("visa"))$("visa").required=foreign;
   if($("nationalityOther"))$("nationalityOther").required=$("nationality")?.value==="기타";
   if($("shuttleLocation"))$("shuttleLocation").required=selected("commuteType")==="통근버스";
+  if($("medicalHistory")){
+    const health=selected("healthStatus");
+    $("medicalHistory").required=health==="치료중"||health==="기타";
+  }
 }
 function validateCareerRows(){
   for(let i=1;i<=3;i++){
@@ -84,8 +88,28 @@ function validateRequiredStep(stepNumber){
   if(stepNumber===2&&!validateCareerRows())return false;
   return true;
 }
+
+function validatePrivacyConsent(){
+  const boxes=[...form.querySelectorAll('[name="privacyConsent"]')];
+  if(!boxes.length)return true;
+  const checked=boxes.find(el=>el.checked);
+  if(!checked){
+    alert("개인정보 수집 및 이용에 동의해야 제출할 수 있습니다.");
+    boxes[0].scrollIntoView({behavior:"smooth",block:"center"});
+    return false;
+  }
+  const value=String(checked.value||"").trim();
+  if(value==="동의하지 않음"||value==="미동의"){
+    alert("개인정보 수집 및 이용에 동의해야 제출할 수 있습니다.");
+    checked.scrollIntoView({behavior:"smooth",block:"center"});
+    return false;
+  }
+  return true;
+}
+
 function validateAllSteps(){
   for(let n=1;n<=5;n++){if(!validateRequiredStep(n)){show(n);return false}}
+  if(!validatePrivacyConsent())return false;
   return true;
 }
 function careerCards(){const c=$("careerContainer");for(let i=1;i<=3;i++)c.insertAdjacentHTML("beforeend",`<div class="career-card"><h3>경력 ${i}${i===1?" · 최근 경력":""}</h3><div class="form-group"><label for="careerCompany${i}">회사명 또는 근무지</label><input id="careerCompany${i}" name="careerCompany${i}"></div><div class="form-row"><div class="form-group"><label for="careerPeriod${i}">근무기간</label><input id="careerPeriod${i}" name="careerPeriod${i}" placeholder="예: 2024.01 ~ 2025.06"></div><div class="form-group"><label for="careerJob${i}">담당업무</label><input id="careerJob${i}" name="careerJob${i}" placeholder="예: 생산, 검사, 포장"></div></div><div class="form-row"><div class="form-group"><label for="careerEmploymentType${i}">근무형태</label><input id="careerEmploymentType${i}" name="careerEmploymentType${i}" placeholder="아르바이트·계약·정규·도급"></div><div class="form-group"><label for="careerReason${i}">퇴사사유</label><input id="careerReason${i}" name="careerReason${i}"></div></div></div>`)}
@@ -159,6 +183,7 @@ function updateNationalityOther(){
   if(!needsVisa){$("visa").value="";error("visaError");}
 }
 nationalitySelect.addEventListener("change",()=>{updateNationalityOther();updateConditionalRequired()});
+form.querySelectorAll('[name="healthStatus"]').forEach(r=>r.addEventListener("change",updateConditionalRequired));
 $("step4NextButton").onclick=()=>{if(validateRequiredStep(4)&&validate4())show(5)};
 $("step5NextButton").onclick=()=>{if(validateRequiredStep(5)&&validate5())show(6)};
 ["phone","emergencyPhone"].forEach(id=>$(id).addEventListener("input",e=>{const d=e.target.value.replace(/\D/g,"").slice(0,11);e.target.value=d.length<=3?d:d.length<=7?`${d.slice(0,3)}-${d.slice(3)}`:`${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}`}));
