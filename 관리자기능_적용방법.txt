@@ -1,0 +1,46 @@
+RecruitSystem-Pro v3.0 관리자 수정 기능 적용 방법
+
+[관리자 비밀번호]
+최초 임시 비밀번호: Haneul2026!
+
+1. 웹 프로젝트 파일 적용
+- 압축을 풉니다.
+- 기존 RecruitSystem-Pro 폴더에 파일을 덮어씁니다.
+- GitHub Desktop에서 변경 파일을 확인하고 Commit → Push origin 합니다.
+
+2. Google Apps Script 적용
+- 압축 안의 apps-script/Code.gs 전체 내용을 복사합니다.
+- Google Apps Script의 기존 Code.gs 전체를 지우고 붙여넣습니다.
+- 저장합니다.
+
+3. 관리자 비밀번호 최초 설정
+- Apps Script 상단 함수 선택 목록에서 setupAdminPassword를 선택합니다.
+- 실행을 누르고 권한을 승인합니다.
+- 실행 결과가 정상인지 확인합니다.
+
+4. 웹앱 새 버전 배포
+- 배포 → 배포 관리 → 기존 배포의 연필 아이콘
+- 버전을 '새 버전'으로 선택
+- 배포합니다.
+- 웹앱 주소는 기존 주소를 유지합니다.
+
+5. 관리자 페이지 로그인
+- /RecruitSystem-Pro/admin/ 접속
+- 임시 비밀번호 Haneul2026! 입력
+- 지원자 카드의 '내용 수정'을 눌러 수정 후 저장합니다.
+
+[비밀번호 변경]
+- apps-script/Code.gs의 changeAdminPassword 함수 안
+  "여기에_새_비밀번호_입력" 부분을 원하는 비밀번호로 바꿉니다.
+- 저장 후 changeAdminPassword 함수를 1회 실행합니다.
+- 비밀번호 변경만 할 때는 웹앱 재배포가 필요하지 않습니다.
+
+[검증 완료]
+- admin/admin.js JavaScript 문법 검사 통과
+- 관리자 조회 API, 수정 API, JSONP 응답 코드 포함 확인
+- 기존 지원서 제출 doPost 및 PDF 생성 코드는 유지
+
+[제한]
+- 관리자에서 텍스트 항목은 수정할 수 있습니다.
+- 기존 PDF 파일 자체는 자동 재생성되지 않습니다.
+- 수정한 내용은 Google Sheet에 반영되며, 기존 PDF에는 제출 당시 내용이 남습니다.

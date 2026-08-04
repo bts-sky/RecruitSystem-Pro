@@ -1,0 +1,80 @@
+RecruitSystem Pro v2.0.1 정적 검증 보고서
+
+검사 항목: 68개
+통과: 68개
+실패: 0개
+
+PASS - ID 존재: address
+PASS - ID 존재: age
+PASS - ID 존재: autoFitButton
+PASS - ID 존재: birthDate
+PASS - ID 존재: cancelPhotoButton
+PASS - ID 존재: careerContainer
+PASS - ID 존재: changePhotoButton
+PASS - ID 존재: choosePhotoButton
+PASS - ID 존재: chooseResumeButton
+PASS - ID 존재: clearSignatureButton
+PASS - ID 존재: closePhotoEditorButton
+PASS - ID 존재: confirmPhotoButton
+PASS - ID 존재: cropCanvas
+PASS - ID 존재: cropStage
+PASS - ID 존재: currentStepNumber
+PASS - ID 존재: currentStepText
+PASS - ID 존재: finalAttachmentPreview
+PASS - ID 존재: finalPhotoPreview
+PASS - ID 존재: finalPreview
+PASS - ID 존재: finalSubmitButton
+PASS - ID 존재: finalSubmitError
+PASS - ID 존재: koreanName
+PASS - ID 존재: phone
+PASS - ID 존재: photoEditorModal
+PASS - ID 존재: photoZoom
+PASS - ID 존재: previewSignatureImage
+PASS - ID 존재: privacyConsent
+PASS - ID 존재: profilePhoto
+PASS - ID 존재: profilePhotoError
+PASS - ID 존재: profilePhotoPreview
+PASS - ID 존재: profilePhotoPreviewImage
+PASS - ID 존재: progressBarFill
+PASS - ID 존재: resumeFile
+PASS - ID 존재: resumeFileError
+PASS - ID 존재: resumeFilePreview
+PASS - ID 존재: rotateLeftButton
+PASS - ID 존재: rotateRightButton
+PASS - ID 존재: shuttleLocation
+PASS - ID 존재: shuttleLocationGroup
+PASS - ID 존재: signatureCanvas
+PASS - ID 존재: signatureData
+PASS - ID 존재: signatureError
+PASS - ID 존재: signaturePlaceholder
+PASS - ID 존재: step4NextButton
+PASS - ID 존재: step5NextButton
+PASS - HTML 필드: healthStatus
+PASS - 미리보기 필드: healthStatus
+PASS - Apps Script 필드: healthStatus
+PASS - HTML 필드: medicalHistory
+PASS - 미리보기 필드: medicalHistory
+PASS - Apps Script 필드: medicalHistory
+PASS - HTML 필드: correctedVision
+PASS - 미리보기 필드: correctedVision
+PASS - Apps Script 필드: correctedVision
+PASS - HTML 필드: employmentType
+PASS - 미리보기 필드: employmentType
+PASS - Apps Script 필드: employmentType
+PASS - HTML 필드: overtimeAvailable
+PASS - 미리보기 필드: overtimeAvailable
+PASS - Apps Script 필드: overtimeAvailable
+PASS - HTML 필드: weekendAvailable
+PASS - 미리보기 필드: weekendAvailable
+PASS - Apps Script 필드: weekendAvailable
+PASS - 3:4 출력 크기
+PASS - 소형 크롭 비율
+PASS - 프레임 영역 저장
+PASS - 서명 데이터
+PASS - 버전 표기
+
+브라우저 로드 검사: Chromium 헤드리스로 별도 진행
+주의: 실제 Google Apps Script 배포/권한 및 휴대전화 카메라·터치 동작은 배포 환경에서 최종 확인해야 합니다.
+브라우저 자동 실행 검사: 미완료
+- 현재 작업 환경의 Chromium이 시스템 DBus 문제로 종료되지 않아 자동 브라우저 검사를 완료하지 못했습니다.
+- 따라서 실제 모바일 브라우저, 사진 선택/터치 조작, Google Apps Script 통신은 배포 후 확인이 필요합니다.

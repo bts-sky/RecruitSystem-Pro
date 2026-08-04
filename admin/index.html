@@ -60,9 +60,21 @@
       <p id="dashboardMessage" class="message" aria-live="polite"></p>
       <div id="applicantList" class="applicant-list"></div>
       <div id="emptyState" class="empty" hidden>조건에 맞는 지원자가 없습니다.</div>
-      <footer>V1.0.16-1 · 조회 및 검색 전용</footer>
+      <footer>V3.0 · 조회·검색·수정</footer>
     </section>
   </main>
+
+  <dialog id="editDialog" class="edit-dialog">
+    <form id="editForm" method="dialog">
+      <div class="dialog-head">
+        <div><p class="eyebrow">지원서 수정</p><h2 id="editTitle">지원자</h2></div>
+        <button type="button" id="cancelEdit" class="secondary">닫기</button>
+      </div>
+      <div id="editFields" class="edit-grid"></div>
+      <div class="dialog-actions"><button type="submit" id="saveEdit" class="primary">수정 내용 저장</button></div>
+    </form>
+  </dialog>
+
   <script src="../js/config.js"></script>
   <script src="admin.js"></script>
 </body>
