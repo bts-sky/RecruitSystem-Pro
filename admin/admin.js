@@ -73,6 +73,9 @@
         </div>
         <div class="memo"><strong>주소</strong> ${escapeHtml(a["주소"] || "-")}<br><strong>메모</strong> ${escapeHtml(a["담당자 메모"] || "없음")}</div>
         <div class="card-actions">
+          ${a["지원서PDF"]
+            ? `<a class="pdf-button" href="${escapeHtml(a["지원서PDF"])}" target="_blank" rel="noopener noreferrer">PDF 보기</a>`
+            : `<span class="pdf-button disabled" aria-disabled="true">PDF 없음</span>`}
           <button type="button" class="secondary edit-button" data-uuid="${escapeHtml(a["UUID"] || "")}" data-receipt="${escapeHtml(a["접수번호"] || "")}">내용 수정</button>
           <button type="button" class="danger delete-button" data-uuid="${escapeHtml(a["UUID"] || "")}" data-receipt="${escapeHtml(a["접수번호"] || "")}" data-name="${escapeHtml(a["성명"] || "지원자")}">삭제</button>
         </div>
