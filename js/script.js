@@ -445,7 +445,7 @@ $("finalSubmitButton").onclick=async()=>{
   if(!validateAllSteps())return;
   const btn=$("finalSubmitButton"),message=$("finalSubmitError");
   message.textContent="";
-  const endpoint=window.RECRUIT_CONFIG?.googleAppsScriptUrl?.trim();
+  const endpoint=window.RECRUIT_SYSTEM_CONFIG?.googleAppsScriptUrl?.trim();
   if(!endpoint){
     message.textContent="Google Apps Script 배포 주소가 아직 설정되지 않았습니다. js/config.js에 /exec 주소를 입력해 주세요.";
     return;
