@@ -11,7 +11,7 @@ const SHEET_HEADERS = [
   "경력1", "경력2", "경력3", "희망근무형태", "근무형태", "잔업가능", "특근가능", "출퇴근방법", "통근버스탑승위치",
   "희망고용방식", "출근가능일", "추가요청사항", "개인정보동의", "지원자폴더",
   "사진파일", "이력서파일", "서명파일", "지원서PDF", "상태", "버전", "국적", "병역사항",
-  "비자", "키", "몸무게", "은행", "계좌번호", "예금주", "담당자 메모"
+  "비자", "키", "몸무게", "은행", "계좌번호", "예금주"
 ];
 
 function setupSystem() {
@@ -46,108 +46,13 @@ function setupSystem() {
   };
 }
 
-function doGet(e) {
-  const params = (e && e.parameter) || {};
-  const action = cleanText_(params.action);
-  let result;
-
-  try {
-    if (action === "adminList") {
-      assertAdminPassword_(params.password);
-      result = { ok: true, applicants: getAdminApplicants_() };
-    } else if (action === "adminUpdate") {
-      assertAdminPassword_(params.password);
-      const updates = JSON.parse(params.updates || "{}");
-      updateAdminApplicant_(params.applicationId, updates);
-      result = { ok: true, message: "지원자 정보가 수정되었습니다.", applicants: getAdminApplicants_() };
-    } else {
-      result = {
-        ok: true,
-        service: "RecruitSystem-Pro",
-        version: SYSTEM.VERSION,
-        message: "Backend is running."
-      };
-    }
-  } catch (error) {
-    result = { ok: false, message: error && error.message ? error.message : "처리 중 오류가 발생했습니다." };
-  }
-
-  return jsonpOrJsonResponse_(result, params.callback);
-}
-
-/** 최초 1회 실행: 관리자 비밀번호를 설정합니다. */
-function setupAdminPassword() {
-  PropertiesService.getScriptProperties().setProperty("ADMIN_PASSWORD", "Haneul2026!");
-  return "관리자 비밀번호가 Haneul2026! 로 설정되었습니다. 로그인 후 반드시 원하는 값으로 변경하세요.";
-}
-
-/** 필요할 때 Apps Script 편집기에서 값만 바꿔 실행하세요. */
-function changeAdminPassword() {
-  PropertiesService.getScriptProperties().setProperty("ADMIN_PASSWORD", "여기에_새_비밀번호_입력");
-  return "관리자 비밀번호가 변경되었습니다.";
-}
-
-function assertAdminPassword_(password) {
-  const saved = PropertiesService.getScriptProperties().getProperty("ADMIN_PASSWORD");
-  if (!saved) throw new Error("관리자 비밀번호가 설정되지 않았습니다. Apps Script에서 setupAdminPassword()를 먼저 실행해 주세요.");
-  if (String(password || "") !== saved) throw new Error("관리자 비밀번호가 올바르지 않습니다.");
-}
-
-function getAdminApplicants_() {
-  const props = PropertiesService.getScriptProperties();
-  const spreadsheetId = props.getProperty("SPREADSHEET_ID");
-  if (!spreadsheetId) throw new Error("setupSystem()을 먼저 실행해 주세요.");
-  const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName(SYSTEM.SHEET_NAME);
-  if (!sheet) throw new Error("지원자목록 시트를 찾을 수 없습니다.");
-  ensureSheetHeaders_(sheet);
-  const values = sheet.getDataRange().getDisplayValues();
-  if (values.length < 2) return [];
-  const headers = values[0];
-  return values.slice(1).filter(row => row.some(Boolean)).map(row => {
-    const item = {};
-    headers.forEach((header, i) => item[header] = row[i] || "");
-    item["연락처"] = item["휴대전화"] || "";
-    item["나이"] = item["만 나이"] || "";
-    item["처리상태"] = item["상태"] || "신규지원";
-    item["가능 근무형태"] = item["희망근무형태"] || "";
-    item["희망 고용 방식"] = item["희망고용방식"] || "";
-    item["출근 가능일"] = item["출근가능일"] || "";
-    return item;
-  }).reverse();
-}
-
-function updateAdminApplicant_(applicationId, updates) {
-  applicationId = cleanText_(applicationId);
-  if (!applicationId) throw new Error("접수번호가 없습니다.");
-  const allowed = [
-    "성명", "휴대전화", "생년월일", "만 나이", "성별", "주소", "비상연락처",
-    "건강상태", "병력및특이사항", "교정시력", "졸업년도", "학교명",
-    "희망근무형태", "근무형태", "잔업가능", "특근가능", "출퇴근방법",
-    "통근버스탑승위치", "희망고용방식", "출근가능일", "추가요청사항",
-    "상태", "국적", "병역사항", "비자", "키", "몸무게", "은행",
-    "계좌번호", "예금주", "담당자 메모"
-  ];
-  const props = PropertiesService.getScriptProperties();
-  const sheet = SpreadsheetApp.openById(props.getProperty("SPREADSHEET_ID")).getSheetByName(SYSTEM.SHEET_NAME);
-  ensureSheetHeaders_(sheet);
-  const values = sheet.getDataRange().getValues();
-  const headers = values[0].map(String);
-  const idCol = headers.indexOf("접수번호");
-  const rowIndex = values.findIndex((row, i) => i > 0 && String(row[idCol]) === applicationId);
-  if (rowIndex < 1) throw new Error("해당 지원자를 찾을 수 없습니다.");
-  allowed.forEach(header => {
-    if (!Object.prototype.hasOwnProperty.call(updates, header)) return;
-    const col = headers.indexOf(header);
-    if (col >= 0) sheet.getRange(rowIndex + 1, col + 1).setValue(cleanText_(updates[header]));
+function doGet() {
+  return jsonResponse_({
+    ok: true,
+    service: "RecruitSystem-Pro",
+    version: SYSTEM.VERSION,
+    message: "Backend is running."
   });
-}
-
-function jsonpOrJsonResponse_(data, callback) {
-  if (callback && /^[A-Za-z_$][0-9A-Za-z_$]*$/.test(callback)) {
-    return ContentService.createTextOutput(callback + "(" + JSON.stringify(data) + ");")
-      .setMimeType(ContentService.MimeType.JAVASCRIPT);
-  }
-  return jsonResponse_(data);
 }
 
 function doPost(e) {
@@ -260,8 +165,7 @@ function doPost(e) {
       cleanText_(form.weight),
       cleanText_(form.bankName),
       cleanText_(form.accountNumber),
-      cleanText_(form.accountHolder),
-      ""
+      cleanText_(form.accountHolder)
     ]);
 
     return jsonResponse_({
