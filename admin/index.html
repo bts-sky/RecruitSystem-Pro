@@ -60,7 +60,7 @@
       <p id="dashboardMessage" class="message" aria-live="polite"></p>
       <div id="applicantList" class="applicant-list"></div>
       <div id="emptyState" class="empty" hidden>조건에 맞는 지원자가 없습니다.</div>
-      <footer>V1.1.0 · 지원자 기본정보 수정</footer>
+      <footer>V1.2.0 · 지원자 수정 및 삭제</footer>
     </section>
 
     <section id="editModal" class="edit-modal" hidden aria-hidden="true">
@@ -90,7 +90,7 @@
           <label class="wide"><span>통근버스 탑승위치</span><input id="editShuttleLocation"></label>
           <label><span>출근가능일</span><input id="editAvailableStartDate" type="date"></label>
           <label class="wide"><span>추가요청사항</span><textarea id="editWorkConditionNote" rows="3"></textarea></label>
-          <p class="edit-note wide">사진·서명·첨부파일은 그대로 유지됩니다. 기존 PDF는 이번 단계에서 자동 재생성되지 않습니다.</p>
+          <p class="edit-note wide">사진·서명·첨부파일은 그대로 유지되며, 수정 저장 시 PDF가 자동 재생성됩니다.</p>
           <p id="editMessage" class="message wide" aria-live="polite"></p>
           <div class="edit-actions wide">
             <button type="button" id="editCancelButton" class="secondary">취소</button>
@@ -100,7 +100,7 @@
       </div>
     </section>
   </main>
-  <script src="../js/config.js?v=20260804-edit1"></script>
-  <script src="admin.js?v=20260804-edit1"></script>
+  <script src="../js/config.js?v=20260804-delete1"></script>
+  <script src="admin.js?v=20260804-delete1"></script>
 </body>
 </html>

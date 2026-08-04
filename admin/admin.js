@@ -72,7 +72,10 @@
           <div class="detail"><span>고용 방식</span><strong>${escapeHtml(a["희망 고용 방식"] || "-")}</strong></div>
         </div>
         <div class="memo"><strong>주소</strong> ${escapeHtml(a["주소"] || "-")}<br><strong>메모</strong> ${escapeHtml(a["담당자 메모"] || "없음")}</div>
-        <div class="card-actions"><button type="button" class="secondary edit-button" data-uuid="${escapeHtml(a["UUID"] || "")}" data-receipt="${escapeHtml(a["접수번호"] || "")}">내용 수정</button></div>
+        <div class="card-actions">
+          <button type="button" class="secondary edit-button" data-uuid="${escapeHtml(a["UUID"] || "")}" data-receipt="${escapeHtml(a["접수번호"] || "")}">내용 수정</button>
+          <button type="button" class="danger delete-button" data-uuid="${escapeHtml(a["UUID"] || "")}" data-receipt="${escapeHtml(a["접수번호"] || "")}" data-name="${escapeHtml(a["성명"] || "지원자")}">삭제</button>
+        </div>
       </article>`).join("");
     emptyState.hidden = filtered.length !== 0;
   }
@@ -152,6 +155,30 @@
     }
   }
 
+
+  async function deleteApplicant(applicant) {
+    const name = applicant["성명"] || "지원자";
+    const receipt = applicant["접수번호"] || "접수번호 없음";
+
+    if (!window.confirm(`${name} (${receipt}) 지원자를 삭제하시겠습니까?\n\n스프레드시트 행이 삭제되고 지원자 폴더는 Drive 휴지통으로 이동합니다.`)) return;
+    if (!window.confirm("정말 삭제하시겠습니까? 이 작업은 관리자 목록에서 즉시 제거됩니다.")) return;
+
+    dashboardMessage.textContent = `${name} 지원자를 삭제하는 중입니다...`;
+    try {
+      const data = await jsonp({
+        action: "adminDelete",
+        password: activePassword,
+        uuid: applicant["UUID"] || "",
+        receipt: applicant["접수번호"] || ""
+      });
+      if (!data.ok) throw new Error(data.message || "삭제에 실패했습니다.");
+      await loadApplicants(activePassword);
+      dashboardMessage.textContent = data.message || "지원자가 삭제되었습니다.";
+    } catch (error) {
+      dashboardMessage.textContent = error.message;
+    }
+  }
+
   async function loadApplicants(password, isLogin = false) {
     dashboardMessage.textContent = "지원자 목록을 불러오는 중입니다...";
     try {
@@ -175,13 +202,15 @@
   document.getElementById("refreshButton").addEventListener("click", () => loadApplicants(activePassword));
   searchInput.addEventListener("input", render); statusFilter.addEventListener("change", render);
   list.addEventListener("click", (event) => {
-    const button = event.target.closest(".edit-button");
+    const button = event.target.closest(".edit-button, .delete-button");
     if (!button) return;
     const applicant = applicants.find((item) =>
       (button.dataset.uuid && item["UUID"] === button.dataset.uuid) ||
       (!button.dataset.uuid && item["접수번호"] === button.dataset.receipt)
     );
-    if (applicant) openEditModal(applicant);
+    if (!applicant) return;
+    if (button.classList.contains("delete-button")) deleteApplicant(applicant);
+    else openEditModal(applicant);
   });
   editForm.addEventListener("submit", (event) => { event.preventDefault(); saveApplicantEdit(); });
   document.getElementById("editCloseButton").addEventListener("click", closeEditModal);
