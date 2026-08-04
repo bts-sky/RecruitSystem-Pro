@@ -60,10 +60,47 @@
       <p id="dashboardMessage" class="message" aria-live="polite"></p>
       <div id="applicantList" class="applicant-list"></div>
       <div id="emptyState" class="empty" hidden>조건에 맞는 지원자가 없습니다.</div>
-      <footer>V1.0.16-1 · 조회 및 검색 전용</footer>
+      <footer>V1.1.0 · 지원자 기본정보 수정</footer>
+    </section>
+
+    <section id="editModal" class="edit-modal" hidden aria-hidden="true">
+      <div class="edit-backdrop" data-close-edit></div>
+      <div class="edit-dialog" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+        <div class="edit-head">
+          <div>
+            <p class="eyebrow">지원서 내용 수정</p>
+            <h2 id="editTitle">지원자 수정</h2>
+          </div>
+          <button type="button" id="editCloseButton" class="secondary">닫기</button>
+        </div>
+        <form id="editForm" class="edit-form">
+          <input type="hidden" id="editUuid">
+          <input type="hidden" id="editReceipt">
+          <label><span>성명</span><input id="editName" required></label>
+          <label><span>휴대전화</span><input id="editPhone" required></label>
+          <label><span>생년월일</span><input id="editBirthDate" type="date"></label>
+          <label><span>만 나이</span><input id="editAge" inputmode="numeric"></label>
+          <label><span>성별</span><select id="editGender"><option value="">선택</option><option>남성</option><option>여성</option></select></label>
+          <label class="wide"><span>주소</span><input id="editAddress"></label>
+          <label><span>비상연락처</span><input id="editEmergencyPhone"></label>
+          <label><span>건강상태</span><select id="editHealthStatus"><option value="">선택</option><option>양호</option><option>비양호</option></select></label>
+          <label class="wide"><span>병력 및 특이사항</span><textarea id="editMedicalHistory" rows="3"></textarea></label>
+          <label><span>희망근무형태</span><select id="editWorkType"><option value="">선택</option><option>주간</option><option>야간</option><option>교대</option></select></label>
+          <label><span>출퇴근방법</span><select id="editCommuteType"><option value="">선택</option><option>자차</option><option>통근버스</option><option>대중교통</option><option>도보</option></select></label>
+          <label class="wide"><span>통근버스 탑승위치</span><input id="editShuttleLocation"></label>
+          <label><span>출근가능일</span><input id="editAvailableStartDate" type="date"></label>
+          <label class="wide"><span>추가요청사항</span><textarea id="editWorkConditionNote" rows="3"></textarea></label>
+          <p class="edit-note wide">사진·서명·첨부파일은 그대로 유지됩니다. 기존 PDF는 이번 단계에서 자동 재생성되지 않습니다.</p>
+          <p id="editMessage" class="message wide" aria-live="polite"></p>
+          <div class="edit-actions wide">
+            <button type="button" id="editCancelButton" class="secondary">취소</button>
+            <button type="submit" id="editSaveButton" class="primary">수정 저장</button>
+          </div>
+        </form>
+      </div>
     </section>
   </main>
-  <script src="../js/config.js"></script>
-  <script src="admin.js"></script>
+  <script src="../js/config.js?v=20260804-edit1"></script>
+  <script src="admin.js?v=20260804-edit1"></script>
 </body>
 </html>

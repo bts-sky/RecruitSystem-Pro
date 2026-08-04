@@ -11,6 +11,10 @@
   const emptyState = document.getElementById("emptyState");
   const searchInput = document.getElementById("searchInput");
   const statusFilter = document.getElementById("statusFilter");
+  const editModal = document.getElementById("editModal");
+  const editForm = document.getElementById("editForm");
+  const editMessage = document.getElementById("editMessage");
+  const editSaveButton = document.getElementById("editSaveButton");
   let applicants = [];
   let activePassword = sessionStorage.getItem(SESSION_KEY) || "";
 
@@ -68,8 +72,84 @@
           <div class="detail"><span>고용 방식</span><strong>${escapeHtml(a["희망 고용 방식"] || "-")}</strong></div>
         </div>
         <div class="memo"><strong>주소</strong> ${escapeHtml(a["주소"] || "-")}<br><strong>메모</strong> ${escapeHtml(a["담당자 메모"] || "없음")}</div>
+        <div class="card-actions"><button type="button" class="secondary edit-button" data-uuid="${escapeHtml(a["UUID"] || "")}" data-receipt="${escapeHtml(a["접수번호"] || "")}">내용 수정</button></div>
       </article>`).join("");
     emptyState.hidden = filtered.length !== 0;
+  }
+
+  function setEditValue(id, value) {
+    const element = document.getElementById(id);
+    if (element) element.value = value || "";
+  }
+
+  function openEditModal(applicant) {
+    setEditValue("editUuid", applicant["UUID"]);
+    setEditValue("editReceipt", applicant["접수번호"]);
+    setEditValue("editName", applicant["성명"]);
+    setEditValue("editPhone", applicant["연락처"]);
+    setEditValue("editBirthDate", applicant["생년월일"]);
+    setEditValue("editAge", applicant["나이"]);
+    setEditValue("editGender", applicant["성별"]);
+    setEditValue("editAddress", applicant["주소"]);
+    setEditValue("editEmergencyPhone", applicant["비상연락처"]);
+    setEditValue("editHealthStatus", applicant["건강상태"]);
+    setEditValue("editMedicalHistory", applicant["병력및특이사항"]);
+    setEditValue("editWorkType", applicant["가능 근무형태"]);
+    setEditValue("editCommuteType", applicant["출퇴근방법"]);
+    setEditValue("editShuttleLocation", applicant["통근버스탑승위치"]);
+    setEditValue("editAvailableStartDate", applicant["출근 가능일"]);
+    setEditValue("editWorkConditionNote", applicant["추가요청사항"]);
+    editMessage.textContent = "";
+    editModal.hidden = false;
+    editModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+    document.getElementById("editName").focus();
+  }
+
+  function closeEditModal() {
+    editModal.hidden = true;
+    editModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
+  }
+
+  function editPayload() {
+    return {
+      action: "adminUpdate",
+      password: activePassword,
+      uuid: document.getElementById("editUuid").value,
+      receipt: document.getElementById("editReceipt").value,
+      name: document.getElementById("editName").value.trim(),
+      phone: document.getElementById("editPhone").value.trim(),
+      birthDate: document.getElementById("editBirthDate").value,
+      age: document.getElementById("editAge").value.trim(),
+      gender: document.getElementById("editGender").value,
+      address: document.getElementById("editAddress").value.trim(),
+      emergencyPhone: document.getElementById("editEmergencyPhone").value.trim(),
+      healthStatus: document.getElementById("editHealthStatus").value,
+      medicalHistory: document.getElementById("editMedicalHistory").value.trim(),
+      workType: document.getElementById("editWorkType").value,
+      commuteType: document.getElementById("editCommuteType").value,
+      shuttleLocation: document.getElementById("editShuttleLocation").value.trim(),
+      availableStartDate: document.getElementById("editAvailableStartDate").value,
+      workConditionNote: document.getElementById("editWorkConditionNote").value.trim()
+    };
+  }
+
+  async function saveApplicantEdit() {
+    editSaveButton.disabled = true;
+    editMessage.textContent = "수정 내용을 저장하는 중입니다...";
+    try {
+      const data = await jsonp(editPayload());
+      if (!data.ok) throw new Error(data.message || "수정 저장에 실패했습니다.");
+      editMessage.textContent = data.message || "수정되었습니다.";
+      await loadApplicants(activePassword);
+      closeEditModal();
+      dashboardMessage.textContent = "지원자 내용이 수정되었습니다.";
+    } catch (error) {
+      editMessage.textContent = error.message;
+    } finally {
+      editSaveButton.disabled = false;
+    }
   }
 
   async function loadApplicants(password, isLogin = false) {
@@ -94,5 +174,19 @@
   document.getElementById("logoutButton").addEventListener("click", () => { sessionStorage.removeItem(SESSION_KEY); activePassword=""; passwordInput.value=""; showLogin(); });
   document.getElementById("refreshButton").addEventListener("click", () => loadApplicants(activePassword));
   searchInput.addEventListener("input", render); statusFilter.addEventListener("change", render);
+  list.addEventListener("click", (event) => {
+    const button = event.target.closest(".edit-button");
+    if (!button) return;
+    const applicant = applicants.find((item) =>
+      (button.dataset.uuid && item["UUID"] === button.dataset.uuid) ||
+      (!button.dataset.uuid && item["접수번호"] === button.dataset.receipt)
+    );
+    if (applicant) openEditModal(applicant);
+  });
+  editForm.addEventListener("submit", (event) => { event.preventDefault(); saveApplicantEdit(); });
+  document.getElementById("editCloseButton").addEventListener("click", closeEditModal);
+  document.getElementById("editCancelButton").addEventListener("click", closeEditModal);
+  editModal.addEventListener("click", (event) => { if (event.target.matches("[data-close-edit]")) closeEditModal(); });
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !editModal.hidden) closeEditModal(); });
   if (activePassword) loadApplicants(activePassword); else showLogin();
 })();
