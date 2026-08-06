@@ -4,7 +4,7 @@ const form=document.getElementById("applicationForm"),steps=[...document.querySe
 const names={1:"기본정보",2:"학력 및 경력사항",3:"근무조건",4:"사진 및 이력서",5:"개인정보 동의 및 서명",6:"최종 확인"};
 let current=1,hasSignature=false;
 const $=id=>document.getElementById(id);
-const FRONTEND_VERSION="v5.6.0-final-form";
+const FRONTEND_VERSION="v5.6.1-signature-fix";
 const OPTIONAL_IDS=new Set(["age","resumeFile","signatureData","workConditionNote"]);
 const CONDITIONAL_IDS=new Set(["nationalityOther","visa","shuttleLocation","medicalHistory","militaryReason"]);
 function insertAfter(reference,node){reference?.parentNode?.insertBefore(node,reference.nextSibling)}
@@ -324,14 +324,17 @@ function signatureGuideRect(){
 function exportGuidedSignature(){
   if(!hasSignature)return "";
   const display=signatureCanvas.getBoundingClientRect();
-  const guide=signatureGuideRect();
-  const scaleX=signatureCanvas.width/display.width;
-  const scaleY=signatureCanvas.height/display.height;
+  if(display.width<=0||display.height<=0)return $("signatureData").value||"";
+
   const output=document.createElement("canvas");
-  output.width=700;output.height=220;
+  output.width=700;
+  output.height=220;
   const ctx=output.getContext("2d");
   ctx.clearRect(0,0,output.width,output.height);
-  ctx.drawImage(signatureCanvas,guide.x*scaleX,guide.y*scaleY,guide.w*scaleX,guide.h*scaleY,0,0,output.width,output.height);
+
+  // 점선 안쪽만 잘라내지 않고 실제 서명 캔버스 전체를 저장한다.
+  // 서명이 점선 경계에 걸쳐도 최종 확인과 PDF에 정상 표시된다.
+  ctx.drawImage(signatureCanvas,0,0,signatureCanvas.width,signatureCanvas.height,0,0,output.width,output.height);
   return output.toDataURL("image/png");
 }
 
@@ -440,7 +443,10 @@ $("clearSignatureButton").onclick=()=>{
   $("signaturePlaceholder").classList.remove("hidden");signatureWrap.classList.remove("has-signature");
   $("signatureError").textContent="";
 };
-$("step5NextButton").addEventListener("click",()=>{$("previewSignatureImage").src=$("signatureData").value});
+$("step5NextButton").addEventListener("click",()=>{
+  if(hasSignature) $("signatureData").value=exportGuidedSignature();
+  $("previewSignatureImage").src=$("signatureData").value;
+});
 $("finalSubmitButton").onclick=async()=>{
   if(!validateAllSteps())return;
   const btn=$("finalSubmitButton"),message=$("finalSubmitError");
@@ -453,6 +459,7 @@ $("finalSubmitButton").onclick=async()=>{
   btn.disabled=true;
   btn.textContent="제출 중...";
   try{
+    if(hasSignature) $("signatureData").value=exportGuidedSignature();
     const payload={
       version:FRONTEND_VERSION,
       submittedAt:new Date().toISOString(),
