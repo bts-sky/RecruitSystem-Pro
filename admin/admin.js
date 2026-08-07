@@ -39,6 +39,24 @@
     return String(value ?? "").replace(/[&<>'"]/g, (ch) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[ch]));
   }
 
+
+  function encodeContractData(data) {
+    const json = JSON.stringify(data);
+    const bytes = new TextEncoder().encode(json);
+    let binary = ""; bytes.forEach((b)=>{ binary += String.fromCharCode(b); });
+    return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"");
+  }
+  function buildContractLink(applicant) {
+    const url = new URL("../employment-contract.html", window.location.href);
+    url.searchParams.set("mode","sign");
+    url.hash = "contract=" + encodeContractData({receipt:applicant["접수번호"]||"",name:applicant["성명"]||"",phone:applicant["연락처"]||"",address:applicant["주소"]||"",startDate:applicant["출근 가능일"]||""});
+    return url.toString();
+  }
+  async function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    const area=document.createElement("textarea"); area.value=text; area.style.position="fixed"; area.style.opacity="0"; document.body.appendChild(area); area.select(); document.execCommand("copy"); area.remove();
+  }
+
   function showDashboard() { loginView.hidden = true; dashboardView.hidden = false; }
   function showLogin() { dashboardView.hidden = true; loginView.hidden = false; passwordInput.focus(); }
 
@@ -76,7 +94,6 @@
           ${a["지원서PDF"]
             ? `<a class="pdf-button" href="${escapeHtml(a["지원서PDF"])}" target="_blank" rel="noopener noreferrer">PDF 보기</a>`
             : `<span class="pdf-button disabled" aria-disabled="true">PDF 없음</span>`}
-          <a class="contract-button" href="../employment-contract.html?name=${encodeURIComponent(a["성명"] || "")}&phone=${encodeURIComponent(a["연락처"] || "")}&address=${encodeURIComponent(a["주소"] || "")}&startDate=${encodeURIComponent(a["출근 가능일"] || "")}&receipt=${encodeURIComponent(a["접수번호"] || "")}" target="_blank" rel="noopener noreferrer">근로계약서</a>
           <button type="button" class="secondary edit-button" data-uuid="${escapeHtml(a["UUID"] || "")}" data-receipt="${escapeHtml(a["접수번호"] || "")}">내용 수정</button>
           <button type="button" class="danger delete-button" data-uuid="${escapeHtml(a["UUID"] || "")}" data-receipt="${escapeHtml(a["접수번호"] || "")}" data-name="${escapeHtml(a["성명"] || "지원자")}">삭제</button>
         </div>
@@ -222,4 +239,11 @@
   editModal.addEventListener("click", (event) => { if (event.target.matches("[data-close-edit]")) closeEditModal(); });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !editModal.hidden) closeEditModal(); });
   if (activePassword) loadApplicants(activePassword); else showLogin();
+
+  list.addEventListener("click", async (event) => {
+    const b=event.target.closest(".contract-link-button"); if(!b) return;
+    const a=applicants.find(x=>String(x["접수번호"]||"")===String(b.dataset.receipt||"")); if(!a) return;
+    try { await copyText(buildContractLink(a)); dashboardMessage.textContent=`${a["성명"]||"지원자"}님의 입사자용 근로계약 링크를 복사했습니다.`; b.textContent="복사 완료"; setTimeout(()=>b.textContent="계약링크 복사",1400); }
+    catch(e){ dashboardMessage.textContent="링크 복사에 실패했습니다."; }
+  });
 })();

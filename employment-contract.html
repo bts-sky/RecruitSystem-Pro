@@ -112,12 +112,15 @@ button{border:0;border-radius:6px;padding:9px 13px;cursor:pointer}.primary{backg
   resize:vertical;
 }
 
+
+.recipient-banner{max-width:1180px;margin:14px auto -4px;background:#fff;border:1px solid #cfd7e3;border-radius:10px;padding:12px 16px}.recipient-banner strong{display:block;font-size:16px;margin-bottom:3px}.recipient-banner span{font-size:13px;color:#5c6672}body.recipient-mode .admin-only{display:none!important}body.recipient-mode .note{display:none}@media print{.recipient-banner{display:none!important}}
 </style>
 </head>
 <body>
+<div id="recipientBanner" class="recipient-banner" hidden><strong>온라인 근로계약서 작성</strong><span>계약내용을 확인한 후 본인 정보를 입력하고 전자서명해 주세요.</span></div>
 <div class="editor">
 <aside class="form">
-<h2>DK산업 근로계약서 입력</h2><div id="linkedApplicant" class="note" style="margin-bottom:10px;font-weight:700"></div>
+<h2>DK산업 근로계약서 입력</h2>
 <div class="f"><label>작성일</label><input id="date" type="date"></div>
 <div class="f"><label>입사일</label><input id="startDate" type="date"></div>
 <div class="f"><label>연락처</label><input id="phone"></div>
@@ -131,8 +134,8 @@ button{border:0;border-radius:6px;padding:9px 13px;cursor:pointer}.primary{backg
 <div class="actions"><button id="print" class="primary" type="button">PDF 저장 / 인쇄</button></div>
 
 <hr style="margin:16px 0;border:0;border-top:1px solid #ddd">
-<button id="adminToggle" type="button" class="secondary" style="width:100%;font-weight:700">관리자 계약내용 수정</button>
-<div id="adminEditor" style="display:none;margin-top:10px">
+<button id="adminToggle" class="admin-only" type="button" class="secondary" style="width:100%;font-weight:700">관리자 계약내용 수정</button>
+<div id="adminEditor" class="admin-only" style="display:none;margin-top:10px">
   <div class="note" style="margin-bottom:8px">
     아래 내용은 관리자만 수정하는 영역입니다. 수정은 현재 작성 중인 계약서에만 적용되며, 기본 원문은 '원본 복원'으로 되돌릴 수 있습니다.
   </div>
@@ -255,6 +258,10 @@ button{border:0;border-radius:6px;padding:9px 13px;cursor:pointer}.primary{backg
 </div>
 
 <script>
+
+function decodeContractData(v){try{let b=v.replace(/-/g,"+").replace(/_/g,"/");while(b.length%4)b+="=";const x=atob(b),a=Uint8Array.from(x,c=>c.charCodeAt(0));return JSON.parse(new TextDecoder().decode(a));}catch(_){return null;}}
+const qp=new URLSearchParams(location.search); const hp=new URLSearchParams(location.hash.replace(/^#/,"")); const shared=hp.get("contract")?decodeContractData(hp.get("contract")):null; const recipientMode=qp.get("mode")==="sign"&&!!shared;
+function applyInitialContractData(){const d=shared||{name:qp.get("name")||"",phone:qp.get("phone")||"",address:qp.get("address")||"",startDate:qp.get("startDate")||""}; if(d.name)document.getElementById("name").value=d.name;if(d.phone)document.getElementById("phone").value=d.phone;if(d.address)document.getElementById("address").value=d.address;if(d.startDate)document.getElementById("startDate").value=d.startDate;if(recipientMode){document.body.classList.add("recipient-mode");document.getElementById("recipientBanner").hidden=false;document.title="온라인 근로계약서 작성";}}
 const pairs={date:['vDate','vDate2'],startDate:['vStartDate'],phone:['vPhone'],rrn:['vRrn'],address:['vAddress'],bank:['vBank'],holder:['vHolder'],account:['vAccount'],name:['vName','vName2']};
 function sync(){
  for(const [id,outs] of Object.entries(pairs)){
@@ -264,7 +271,7 @@ function sync(){
  }
 }
 Object.keys(pairs).forEach(id=>document.getElementById(id).addEventListener('input',sync));
-document.getElementById('date').value=new Date().toISOString().slice(0,10);sync();
+document.getElementById('date').value=new Date().toISOString().slice(0,10);applyInitialContractData();sync();
 const rrn=document.getElementById('rrn');rrn.addEventListener('input',()=>{let n=rrn.value.replace(/\D/g,'').slice(0,13);rrn.value=n.length>6?n.slice(0,6)+'-'+n.slice(6):n;sync()});
 const phone=document.getElementById('phone');phone.addEventListener('input',()=>{let n=phone.value.replace(/\D/g,'').slice(0,11);phone.value=n.length<=3?n:n.length<=7?n.slice(0,3)+'-'+n.slice(3):n.slice(0,3)+'-'+n.slice(3,7)+'-'+n.slice(7);sync()});
 const c=document.getElementById('sig'),ctx=c.getContext('2d');let drawing=false,signed=false;
@@ -320,21 +327,6 @@ document.getElementById('restoreContract').onclick=()=>{
   contractEdit.value=sourceText(contractSource);
   safetyEdit.value=sourceText(safetySource);
 };
-
-
-// RecruitSystem-Pro 관리자에서 전달된 지원자 기본정보 자동 입력
-(function prefillFromRecruitAdmin(){
-  const q=new URLSearchParams(location.search);
-  const set=(id,v)=>{const el=document.getElementById(id); if(el && v) el.value=v;};
-  set('name', q.get('name')||'');
-  set('phone', q.get('phone')||'');
-  set('address', q.get('address')||'');
-  set('startDate', q.get('startDate')||'');
-  const receipt=q.get('receipt')||'';
-  const box=document.getElementById('linkedApplicant');
-  if(box && (q.get('name')||receipt)) box.textContent=`연결 지원자: ${q.get('name')||'-'}${receipt?' · '+receipt:''}`;
-  if(typeof sync==='function') sync();
-})();
 
 </script>
 </body></html>
