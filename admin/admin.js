@@ -35,6 +35,66 @@
     });
   }
 
+
+  const contractEndpoint = () => (window.RECRUIT_SYSTEM_CONFIG?.contractAppsScriptUrl || "").trim();
+  let contractRecords = {};
+
+  async function contractJsonp(params) {
+    const endpoint = contractEndpoint();
+    if (!endpoint) throw new Error("근로계약 Apps Script 주소가 아직 설정되지 않았습니다.");
+    return jsonp({...params, _endpointOverride:endpoint});
+  }
+
+  // endpoint를 선택할 수 있는 JSONP 헬퍼
+  function jsonpAt(endpoint, params) {
+    return new Promise((resolve, reject) => {
+      const callback = `__contractJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      const script = document.createElement("script");
+      const timeout = setTimeout(() => { cleanup(); reject(new Error("근로계약 서버 응답 시간이 초과되었습니다.")); }, 15000);
+      function cleanup(){ clearTimeout(timeout); delete window[callback]; script.remove(); }
+      window[callback] = (data) => { cleanup(); resolve(data); };
+      script.onerror = () => { cleanup(); reject(new Error("근로계약 서버에 연결하지 못했습니다.")); };
+      const query = new URLSearchParams({...params, callback});
+      script.src = `${endpoint}${endpoint.includes("?") ? "&" : "?"}${query}`;
+      document.head.appendChild(script);
+    });
+  }
+
+  async function loadContractRecords() {
+    const endpoint = contractEndpoint();
+    if (!endpoint || !activePassword) { contractRecords = {}; return; }
+    try {
+      const data = await jsonpAt(endpoint, {action:"adminContractList", password:activePassword});
+      if (!data.ok) throw new Error(data.message || "근로계약 상태 조회 실패");
+      contractRecords = {};
+      (data.contracts || []).forEach(c => { if (c.receipt) contractRecords[c.receipt] = c; });
+    } catch (e) {
+      console.warn(e);
+      contractRecords = {};
+    }
+  }
+
+  async function createAndCopyContractLink(applicant) {
+    const endpoint = contractEndpoint();
+    if (!endpoint) throw new Error("js/config.js의 contractAppsScriptUrl에 근로계약 웹 앱 /exec 주소를 입력해 주세요.");
+    const baseUrl = new URL("../employment-contract.html", window.location.href).toString();
+    const data = await jsonpAt(endpoint, {
+      action:"createContractLink",
+      password:activePassword,
+      receipt:applicant["접수번호"] || "",
+      name:applicant["성명"] || "",
+      phone:applicant["연락처"] || "",
+      address:applicant["주소"] || "",
+      startDate:applicant["출근 가능일"] || "",
+      baseUrl
+    });
+    if (!data.ok) throw new Error(data.message || "계약 링크 생성 실패");
+    await copyText(data.url);
+    await loadContractRecords();
+    render();
+    return data;
+  }
+
   function escapeHtml(value) {
     return String(value ?? "").replace(/[&<>'"]/g, (ch) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[ch]));
   }
@@ -95,7 +155,8 @@
             ? `<a class="pdf-button" href="${escapeHtml(a["지원서PDF"])}" target="_blank" rel="noopener noreferrer">PDF 보기</a>`
             : `<span class="pdf-button disabled" aria-disabled="true">PDF 없음</span>`}
           <a class="contract-button" href="../employment-contract.html?name=${encodeURIComponent(a["성명"] || "")}&phone=${encodeURIComponent(a["연락처"] || "")}&address=${encodeURIComponent(a["주소"] || "")}&startDate=${encodeURIComponent(a["출근 가능일"] || "")}&receipt=${encodeURIComponent(a["접수번호"] || "")}" target="_blank" rel="noopener noreferrer">근로계약서</a>
-          <button type="button" class="secondary contract-link-button" data-receipt="${escapeHtml(a["접수번호"] || "")}">계약링크 복사</button>
+          <button type="button" class="secondary contract-link-button" data-receipt="${escapeHtml(a["접수번호"] || "")}">${contractRecords[a["접수번호"]]?.status === "완료" ? "계약완료" : "계약링크 복사"}</button>
+          ${contractRecords[a["접수번호"]]?.pdfUrl ? `<a class="contract-button" href="${escapeHtml(contractRecords[a["접수번호"]].pdfUrl)}" target="_blank" rel="noopener noreferrer">계약 PDF</a>` : ""}
           <button type="button" class="secondary edit-button" data-uuid="${escapeHtml(a["UUID"] || "")}" data-receipt="${escapeHtml(a["접수번호"] || "")}">내용 수정</button>
           <button type="button" class="danger delete-button" data-uuid="${escapeHtml(a["UUID"] || "")}" data-receipt="${escapeHtml(a["접수번호"] || "")}" data-name="${escapeHtml(a["성명"] || "지원자")}">삭제</button>
         </div>
@@ -209,6 +270,7 @@
       if (!data.ok) throw new Error(data.message || "조회에 실패했습니다.");
       activePassword = password; sessionStorage.setItem(SESSION_KEY, password);
       applicants = Array.isArray(data.applicants) ? data.applicants : [];
+      await loadContractRecords();
       showDashboard(); updateStats(applicants); render();
       dashboardMessage.textContent = `총 ${applicants.length}명의 지원자를 불러왔습니다.`;
       loginMessage.textContent = "";
