@@ -94,6 +94,8 @@
           ${a["지원서PDF"]
             ? `<a class="pdf-button" href="${escapeHtml(a["지원서PDF"])}" target="_blank" rel="noopener noreferrer">PDF 보기</a>`
             : `<span class="pdf-button disabled" aria-disabled="true">PDF 없음</span>`}
+          <a class="contract-button" href="../employment-contract.html?name=${encodeURIComponent(a["성명"] || "")}&phone=${encodeURIComponent(a["연락처"] || "")}&address=${encodeURIComponent(a["주소"] || "")}&startDate=${encodeURIComponent(a["출근 가능일"] || "")}&receipt=${encodeURIComponent(a["접수번호"] || "")}" target="_blank" rel="noopener noreferrer">근로계약서</a>
+          <button type="button" class="secondary contract-link-button" data-receipt="${escapeHtml(a["접수번호"] || "")}">계약링크 복사</button>
           <button type="button" class="secondary edit-button" data-uuid="${escapeHtml(a["UUID"] || "")}" data-receipt="${escapeHtml(a["접수번호"] || "")}">내용 수정</button>
           <button type="button" class="danger delete-button" data-uuid="${escapeHtml(a["UUID"] || "")}" data-receipt="${escapeHtml(a["접수번호"] || "")}" data-name="${escapeHtml(a["성명"] || "지원자")}">삭제</button>
         </div>

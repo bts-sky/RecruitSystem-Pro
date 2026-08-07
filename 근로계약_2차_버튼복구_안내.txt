@@ -1,0 +1,12 @@
+수정사항
+- 지원자 카드에 근로계약서 버튼 복구
+- 지원자 카드에 계약링크 복사 버튼 추가
+- 기존 PDF 보기 / 내용 수정 / 삭제 유지
+- 입사자용 링크 기능 및 employment-contract.html 유지
+
+적용
+1. ZIP 압축 해제
+2. 현재 RecruitSystem-Pro 폴더에 전체 덮어쓰기
+3. GitHub Desktop Changes에서 admin/admin.js, admin/admin.css 확인
+4. Commit to main → Push origin
+5. 실제 관리자 페이지에서 Ctrl+F5
