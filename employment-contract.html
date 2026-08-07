@@ -388,13 +388,20 @@ function setContractMessage(text,type){
   msg.className='contract-submit-message'+(type?' is-'+type:'');
 }
 
-async function waitForContractComplete(token,maxAttempts=12){
+async function waitForContractComplete(token,maxAttempts=18){
   for(let i=0;i<maxAttempts;i++){
     await new Promise(r=>setTimeout(r,1000));
     try{
       const check=await contractJsonp({action:'getContract',token});
-      if(check && check.ok && check.contract && check.contract.status==='완료') return check.contract;
-    }catch(_){}
+      if(check && check.ok && check.contract){
+        if(check.contract.status==='완료') return check.contract;
+        if(check.contract.status==='오류'){
+          throw new Error(check.contract.errorMessage || '계약 PDF 생성 중 오류가 발생했습니다.');
+        }
+      }
+    }catch(e){
+      if(e && e.message && e.message!=='계약서 서버 응답 시간이 초과되었습니다.') throw e;
+    }
   }
   return null;
 }
@@ -444,14 +451,18 @@ async function submitEmploymentContract(){
 
     // Apps Script Web App의 cross-origin POST는 응답 읽기가 차단될 수 있어
     // no-cors로 전송한 뒤 JSONP 조회로 실제 저장 완료 여부를 확인한다.
-    await fetch(endpoint,{
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify(payload)
-    });
+    try{
+      await fetch(endpoint,{
+        method:'POST',
+        mode:'no-cors',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify(payload)
+      });
+    }catch(fetchError){
+      console.warn('POST 응답 확인 불가, 서버 상태 조회를 계속합니다.',fetchError);
+    }
 
-    setContractMessage('전송되었습니다. 서버 저장 완료 여부를 확인하는 중입니다...','working');
+    setContractMessage('전송되었습니다. 서버 저장 결과를 확인하는 중입니다...','working');
     const saved=await waitForContractComplete(contractToken);
     if(!saved) throw new Error('서버 저장 확인 시간이 초과되었습니다. 관리자에게 문의해 주세요.');
 
