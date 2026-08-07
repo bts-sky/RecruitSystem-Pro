@@ -305,9 +305,28 @@
   if (activePassword) loadApplicants(activePassword); else showLogin();
 
   list.addEventListener("click", async (event) => {
-    const b=event.target.closest(".contract-link-button"); if(!b) return;
-    const a=applicants.find(x=>String(x["접수번호"]||"")===String(b.dataset.receipt||"")); if(!a) return;
-    try { await copyText(buildContractLink(a)); dashboardMessage.textContent=`${a["성명"]||"지원자"}님의 입사자용 근로계약 링크를 복사했습니다.`; b.textContent="복사 완료"; setTimeout(()=>b.textContent="계약링크 복사",1400); }
-    catch(e){ dashboardMessage.textContent="링크 복사에 실패했습니다."; }
+    const b=event.target.closest(".contract-link-button");
+    if(!b) return;
+    const a=applicants.find(x=>String(x["접수번호"]||"")===String(b.dataset.receipt||""));
+    if(!a) return;
+    if(contractRecords[a["접수번호"]]?.status === "완료"){
+      dashboardMessage.textContent=`${a["성명"]||"지원자"}님의 근로계약은 이미 완료되었습니다.`;
+      return;
+    }
+    const originalText=b.textContent;
+    b.disabled=true;
+    b.textContent="링크 생성 중...";
+    dashboardMessage.textContent="근로계약 서버에서 전용 링크를 생성하는 중입니다...";
+    try {
+      await createAndCopyContractLink(a);
+      dashboardMessage.textContent=`${a["성명"]||"지원자"}님의 서버연동 근로계약 링크를 복사했습니다.`;
+      b.textContent="복사 완료";
+      setTimeout(()=>{b.textContent="계약링크 복사";b.disabled=false;},1600);
+    } catch(e){
+      console.error(e);
+      dashboardMessage.textContent="계약링크 생성 실패: "+(e.message||"다시 시도해 주세요.");
+      b.textContent=originalText;
+      b.disabled=false;
+    }
   });
 })();

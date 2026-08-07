@@ -119,6 +119,23 @@ button{border:0;border-radius:6px;padding:9px 13px;cursor:pointer}.primary{backg
 body.recipient-mode .recipient-only{display:inline-flex!important}
 body.recipient-mode .admin-only{display:none!important}
 body.contract-complete #contractFormPanel input,body.contract-complete #contractFormPanel canvas{pointer-events:none;background:#f4f5f7}
+
+.contract-submit-message{
+  display:block!important;
+  min-height:20px;
+  margin-top:10px;
+  padding:8px 10px;
+  border-radius:6px;
+  font-size:13px;
+  line-height:1.45;
+  font-weight:700;
+  color:#1f2937;
+}
+.contract-submit-message:empty{padding:0;min-height:0;margin-top:0}
+.contract-submit-message.is-working{background:#eef5ff;color:#154a91}
+.contract-submit-message.is-success{background:#edf9f0;color:#176b35}
+.contract-submit-message.is-error{background:#fff0f0;color:#b42318}
+
 </style>
 </head>
 <body>
@@ -159,7 +176,7 @@ body.contract-complete #contractFormPanel input,body.contract-complete #contract
 </div>
 
 <div class="note">원본 이미지는 사용하지 않고 새 A4 양식으로 구성했습니다. DK산업 원본의 계약 문구와 안전수칙 문구는 임의로 고치지 않았고, 요청하신 입사교육만 제외했습니다.</div>
-<div id="contractSubmitMessage" class="note" style="font-weight:700"></div>
+<div id="contractSubmitMessage" class="contract-submit-message" aria-live="polite"></div>
 </aside>
 
 <main class="paper">
@@ -365,22 +382,101 @@ document.getElementById('restoreContract').onclick=()=>{
 };
 
 
-async function submitEmploymentContract(){
+function setContractMessage(text,type){
   const msg=document.getElementById('contractSubmitMessage');
-  if(!contractToken){msg.textContent='유효한 계약 토큰이 없습니다.';return;}
+  msg.textContent=text||'';
+  msg.className='contract-submit-message'+(type?' is-'+type:'');
+}
+
+async function waitForContractComplete(token,maxAttempts=12){
+  for(let i=0;i<maxAttempts;i++){
+    await new Promise(r=>setTimeout(r,1000));
+    try{
+      const check=await contractJsonp({action:'getContract',token});
+      if(check && check.ok && check.contract && check.contract.status==='완료') return check.contract;
+    }catch(_){}
+  }
+  return null;
+}
+
+async function submitEmploymentContract(){
+  if(!contractToken){
+    setContractMessage('이 링크는 이전 테스트용 링크입니다. 관리자 화면에서 「계약링크 복사」를 다시 눌러 새 링크로 접속해 주세요.','error');
+    return;
+  }
   const required=['date','startDate','phone','rrn','address','bank','holder','account','name'];
-  for(const id of required){const el=document.getElementById(id);if(!el.value.trim()){msg.textContent=`${el.previousElementSibling?.textContent||id} 항목을 입력해 주세요.`;el.focus();return;}}
-  if(document.getElementById('rrn').value.replace(/\D/g,'').length!==13){msg.textContent='주민등록번호 13자리를 입력해 주세요.';return;}
-  if(!signed){msg.textContent='전자서명을 입력해 주세요.';return;}
-  const endpoint=contractApiUrl();if(!endpoint){msg.textContent='근로계약 서버 주소가 설정되지 않았습니다.';return;}
-  const btn=document.getElementById('submitContract');btn.disabled=true;btn.textContent='제출 중...';msg.textContent='근로계약서를 안전하게 저장하는 중입니다...';
+  for(const id of required){
+    const el=document.getElementById(id);
+    if(!el.value.trim()){
+      setContractMessage(`${el.previousElementSibling?.textContent||id} 항목을 입력해 주세요.`,'error');
+      el.focus(); return;
+    }
+  }
+  if(document.getElementById('rrn').value.replace(/\D/g,'').length!==13){
+    setContractMessage('주민등록번호 13자리를 입력해 주세요.','error'); return;
+  }
+  if(!signed){setContractMessage('전자서명을 입력해 주세요.','error');return;}
+  const endpoint=contractApiUrl();
+  if(!endpoint){setContractMessage('근로계약 서버 주소가 설정되지 않았습니다.','error');return;}
+
+  const btn=document.getElementById('submitContract');
+  btn.disabled=true;
+  btn.textContent='제출 중...';
+  setContractMessage('근로계약서를 안전하게 저장하는 중입니다...','working');
+
   try{
-    sync();sigSync();
-    const payload={action:'submitContract',token:contractToken,writtenDate:document.getElementById('date').value,startDate:document.getElementById('startDate').value,phone:document.getElementById('phone').value,rrn:document.getElementById('rrn').value,address:document.getElementById('address').value,bank:document.getElementById('bank').value,holder:document.getElementById('holder').value,account:document.getElementById('account').value,name:document.getElementById('name').value,signatureData:c.toDataURL('image/png'),contractText:sourceText(contractSource),safetyText:sourceText(safetySource)};
-    const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});const data=await r.json();if(!data.ok)throw new Error(data.message||'저장 실패');
-    msg.textContent='근로계약서 작성이 완료되었습니다. 감사합니다.';document.body.classList.add('contract-complete');btn.textContent='작성 완료';
-    if(data.pdfUrl){const a=document.createElement('a');a.href=data.pdfUrl;a.target='_blank';a.rel='noopener noreferrer';a.textContent='완성된 계약서 PDF 보기';a.className='primary';a.style.marginLeft='8px';btn.parentNode.appendChild(a);}
-  }catch(e){console.error(e);msg.textContent='제출하지 못했습니다: '+(e.message||'잠시 후 다시 시도해 주세요.');btn.disabled=false;btn.textContent='근로계약서 작성 완료';}
+    sync(); sigSync();
+    const payload={
+      action:'submitContract',token:contractToken,
+      writtenDate:document.getElementById('date').value,
+      startDate:document.getElementById('startDate').value,
+      phone:document.getElementById('phone').value,
+      rrn:document.getElementById('rrn').value,
+      address:document.getElementById('address').value,
+      bank:document.getElementById('bank').value,
+      holder:document.getElementById('holder').value,
+      account:document.getElementById('account').value,
+      name:document.getElementById('name').value,
+      signatureData:c.toDataURL('image/png'),
+      contractText:sourceText(contractSource),
+      safetyText:sourceText(safetySource)
+    };
+
+    // Apps Script Web App의 cross-origin POST는 응답 읽기가 차단될 수 있어
+    // no-cors로 전송한 뒤 JSONP 조회로 실제 저장 완료 여부를 확인한다.
+    await fetch(endpoint,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(payload)
+    });
+
+    setContractMessage('전송되었습니다. 서버 저장 완료 여부를 확인하는 중입니다...','working');
+    const saved=await waitForContractComplete(contractToken);
+    if(!saved) throw new Error('서버 저장 확인 시간이 초과되었습니다. 관리자에게 문의해 주세요.');
+
+    setContractMessage('근로계약서 작성이 완료되었습니다. 감사합니다.','success');
+    document.body.classList.add('contract-complete');
+    btn.textContent='작성 완료';
+    btn.disabled=true;
+
+    if(saved.pdfUrl && !document.getElementById('completedContractPdf')){
+      const a=document.createElement('a');
+      a.id='completedContractPdf';
+      a.href=saved.pdfUrl;
+      a.target='_blank';
+      a.rel='noopener noreferrer';
+      a.textContent='완성된 계약서 PDF 보기';
+      a.className='primary';
+      a.style.marginLeft='8px';
+      btn.parentNode.appendChild(a);
+    }
+  }catch(e){
+    console.error(e);
+    setContractMessage('제출하지 못했습니다: '+(e.message||'잠시 후 다시 시도해 주세요.'),'error');
+    btn.disabled=false;
+    btn.textContent='근로계약서 작성 완료';
+  }
 }
 document.getElementById('submitContract').onclick=submitEmploymentContract;
 if(contractToken){loadServerContract().catch(e=>{document.getElementById('contractSubmitMessage').textContent=e.message;});}
