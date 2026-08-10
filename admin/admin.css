@@ -9,3 +9,19 @@
 .contract-admin-link{background:#1764d4;color:#fff}
 .contract-admin-link:hover{background:#0f56bb}
 @media(max-width:520px){.topbar{align-items:flex-start}.topbar-actions{flex-direction:column;align-items:stretch}.nav-button,.topbar-actions button{padding:10px 12px}}
+
+/* 업체별 근로계약서 선택 */
+.contract-company-dialog{width:min(560px,100%)}
+.contract-company-applicant{margin:0 0 16px;padding:12px 14px;border-radius:12px;background:#f7f9fc;color:#344054;font-weight:800}
+.contract-company-label{display:block;margin-bottom:14px}
+.contract-company-label span{display:block;margin-bottom:6px}
+.contract-open-button{background:#1764d4;color:#fff}
+.contract-open-button:hover{background:#0f56bb}
+
+.pdf-button{display:inline-flex;align-items:center;justify-content:center;min-width:96px;padding:12px 16px;border-radius:12px;background:#1764d4;color:#fff;font-weight:800;text-decoration:none;line-height:1.5}
+.pdf-button:hover{background:#0f55ba}
+.pdf-button.disabled{background:#e5e7eb;color:#8a93a3;cursor:not-allowed;pointer-events:none}
+.contract-button{display:inline-flex;align-items:center;justify-content:center;min-width:108px;padding:12px 16px;border-radius:12px;background:#1764d4;color:#fff;font-weight:800;text-decoration:none;line-height:1.5}
+.contract-button:hover{background:#0f55ba}
+.contract-link-button{min-width:118px}
+@media(max-width:420px){.card-actions{display:grid;grid-template-columns:1fr 1fr}.contract-button,.contract-link-button,.pdf-button,.edit-button,.delete-button{width:100%;min-width:0}.card-actions .delete-button{grid-column:auto}}

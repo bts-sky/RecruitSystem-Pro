@@ -15,6 +15,12 @@
   const editForm = document.getElementById("editForm");
   const editMessage = document.getElementById("editMessage");
   const editSaveButton = document.getElementById("editSaveButton");
+  const contractCompanyModal = document.getElementById("contractCompanyModal");
+  const contractCompanyReceipt = document.getElementById("contractCompanyReceipt");
+  const contractCompanyApplicant = document.getElementById("contractCompanyApplicant");
+  const contractCompanySelect = document.getElementById("contractCompanySelect");
+  const contractCompanyMessage = document.getElementById("contractCompanyMessage");
+  const contractCompanyOpenButton = document.getElementById("contractCompanyOpenButton");
   let applicants = [];
   let activePassword = sessionStorage.getItem(SESSION_KEY) || "";
 
@@ -74,25 +80,56 @@
     }
   }
 
-  async function createAndCopyContractLink(applicant) {
-    const endpoint = contractEndpoint();
-    if (!endpoint) throw new Error("js/config.js의 contractAppsScriptUrl에 근로계약 웹 앱 /exec 주소를 입력해 주세요.");
+  async function copyExistingContractLink(applicant) {
+    const rec = contractRecords[applicant["접수번호"]] || {};
+    if (!rec.token) {
+      throw new Error("먼저 「근로계약서」에서 업체를 선택하고 계약 내용을 확인한 뒤 계약링크를 생성해 주세요.");
+    }
     const baseUrl = new URL("../employment-contract.html", window.location.href).toString();
-    const data = await jsonpAt(endpoint, {
-      action:"createContractLink",
-      password:activePassword,
-      receipt:applicant["접수번호"] || "",
-      name:applicant["성명"] || "",
-      phone:applicant["연락처"] || "",
-      address:applicant["주소"] || "",
-      startDate:applicant["출근 가능일"] || "",
-      baseUrl
-    });
-    if (!data.ok) throw new Error(data.message || "계약 링크 생성 실패");
-    await copyText(data.url);
-    await loadContractRecords();
-    render();
-    return data;
+    const url = baseUrl + (baseUrl.includes("?") ? "&" : "?") + "mode=sign&token=" + encodeURIComponent(rec.token);
+    await copyText(url);
+    return {ok:true,url};
+  }
+
+  function openContractCompanyModal(applicant) {
+    contractCompanyReceipt.value = applicant["접수번호"] || "";
+    contractCompanyApplicant.textContent = `${applicant["성명"] || "지원자"} · ${applicant["접수번호"] || ""}`;
+    contractCompanySelect.value = contractRecords[applicant["접수번호"]]?.company || "";
+    contractCompanyMessage.textContent = "";
+    contractCompanyModal.hidden = false;
+    contractCompanyModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+    contractCompanySelect.focus();
+  }
+
+  function closeContractCompanyModal() {
+    contractCompanyModal.hidden = true;
+    contractCompanyModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
+  }
+
+  function openSelectedCompanyContract() {
+    const receipt = contractCompanyReceipt.value;
+    const applicant = applicants.find(x => String(x["접수번호"] || "") === String(receipt || ""));
+    const company = contractCompanySelect.value;
+    if (!applicant) {
+      contractCompanyMessage.textContent = "지원자 정보를 찾을 수 없습니다.";
+      return;
+    }
+    if (!company) {
+      contractCompanyMessage.textContent = "업체를 먼저 선택해 주세요.";
+      contractCompanySelect.focus();
+      return;
+    }
+    const url = new URL("../employment-contract.html", window.location.href);
+    url.searchParams.set("company", company);
+    url.searchParams.set("name", applicant["성명"] || "");
+    url.searchParams.set("phone", applicant["연락처"] || "");
+    url.searchParams.set("address", applicant["주소"] || "");
+    url.searchParams.set("startDate", applicant["출근 가능일"] || "");
+    url.searchParams.set("receipt", applicant["접수번호"] || "");
+    window.open(url.toString(), "_blank", "noopener");
+    closeContractCompanyModal();
   }
 
   function escapeHtml(value) {
@@ -154,7 +191,7 @@
           ${a["지원서PDF"]
             ? `<a class="pdf-button" href="${escapeHtml(a["지원서PDF"])}" target="_blank" rel="noopener noreferrer">PDF 보기</a>`
             : `<span class="pdf-button disabled" aria-disabled="true">PDF 없음</span>`}
-          <a class="contract-button" href="../employment-contract.html?name=${encodeURIComponent(a["성명"] || "")}&phone=${encodeURIComponent(a["연락처"] || "")}&address=${encodeURIComponent(a["주소"] || "")}&startDate=${encodeURIComponent(a["출근 가능일"] || "")}&receipt=${encodeURIComponent(a["접수번호"] || "")}" target="_blank" rel="noopener noreferrer">근로계약서</a>
+          <button type="button" class="contract-button contract-open-button" data-receipt="${escapeHtml(a["접수번호"] || "")}">근로계약서</button>
           <button type="button" class="secondary contract-link-button" data-receipt="${escapeHtml(a["접수번호"] || "")}">${contractRecords[a["접수번호"]]?.status === "완료" ? "계약완료" : "계약링크 복사"}</button>
           ${contractRecords[a["접수번호"]]?.pdfUrl ? `<a class="contract-button" href="${escapeHtml(contractRecords[a["접수번호"]].pdfUrl)}" target="_blank" rel="noopener noreferrer">계약 PDF</a>` : ""}
           <button type="button" class="secondary edit-button" data-uuid="${escapeHtml(a["UUID"] || "")}" data-receipt="${escapeHtml(a["접수번호"] || "")}">내용 수정</button>
@@ -287,7 +324,7 @@
   document.getElementById("refreshButton").addEventListener("click", () => loadApplicants(activePassword));
   searchInput.addEventListener("input", render); statusFilter.addEventListener("change", render);
   list.addEventListener("click", (event) => {
-    const button = event.target.closest(".edit-button, .delete-button");
+    const button = event.target.closest(".edit-button, .delete-button, .contract-open-button");
     if (!button) return;
     const applicant = applicants.find((item) =>
       (button.dataset.uuid && item["UUID"] === button.dataset.uuid) ||
@@ -295,13 +332,22 @@
     );
     if (!applicant) return;
     if (button.classList.contains("delete-button")) deleteApplicant(applicant);
+    else if (button.classList.contains("contract-open-button")) openContractCompanyModal(applicant);
     else openEditModal(applicant);
   });
   editForm.addEventListener("submit", (event) => { event.preventDefault(); saveApplicantEdit(); });
   document.getElementById("editCloseButton").addEventListener("click", closeEditModal);
   document.getElementById("editCancelButton").addEventListener("click", closeEditModal);
   editModal.addEventListener("click", (event) => { if (event.target.matches("[data-close-edit]")) closeEditModal(); });
-  document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !editModal.hidden) closeEditModal(); });
+  document.getElementById("contractCompanyCloseButton").addEventListener("click", closeContractCompanyModal);
+  document.getElementById("contractCompanyCancelButton").addEventListener("click", closeContractCompanyModal);
+  contractCompanyOpenButton.addEventListener("click", openSelectedCompanyContract);
+  contractCompanyModal.addEventListener("click", (event) => { if (event.target.matches("[data-close-contract-company]")) closeContractCompanyModal(); });
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (!contractCompanyModal.hidden) closeContractCompanyModal();
+    else if (!editModal.hidden) closeEditModal();
+  });
   if (activePassword) loadApplicants(activePassword); else showLogin();
 
   list.addEventListener("click", async (event) => {
@@ -316,15 +362,15 @@
     const originalText=b.textContent;
     b.disabled=true;
     b.textContent="링크 생성 중...";
-    dashboardMessage.textContent="근로계약 서버에서 전용 링크를 생성하는 중입니다...";
+    dashboardMessage.textContent="저장된 근로계약 링크를 복사하는 중입니다...";
     try {
-      await createAndCopyContractLink(a);
-      dashboardMessage.textContent=`${a["성명"]||"지원자"}님의 서버연동 근로계약 링크를 복사했습니다.`;
+      await copyExistingContractLink(a);
+      dashboardMessage.textContent=`${a["성명"]||"지원자"}님의 근로계약 링크를 복사했습니다.`;
       b.textContent="복사 완료";
       setTimeout(()=>{b.textContent="계약링크 복사";b.disabled=false;},1600);
     } catch(e){
       console.error(e);
-      dashboardMessage.textContent="계약링크 생성 실패: "+(e.message||"다시 시도해 주세요.");
+      dashboardMessage.textContent="계약링크 복사 실패: "+(e.message||"다시 시도해 주세요.");
       b.textContent=originalText;
       b.disabled=false;
     }
