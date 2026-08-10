@@ -69,6 +69,44 @@
     return esc(value);
   }
 
+  function csvSafe(value) {
+    let text = String(value ?? "").replace(/\r?\n/g, " ").trim();
+    // Excel CSV 수식 실행 방지
+    if (/^[=+\-@]/.test(text)) text = "'" + text;
+    return `"${text.replace(/"/g, '""')}"`;
+  }
+
+  function downloadExcelCsv() {
+    const rows = filteredRecords();
+    if (!rows.length) {
+      dashboardMessage.textContent = "다운로드할 근로계약이 없습니다.";
+      return;
+    }
+
+    const headers = ["접수번호","성명","관리자메모","연락처","입사일","작성일","완료일시","상태","계약PDF"];
+    const lines = [headers.map(csvSafe).join(",")];
+    rows.forEach(r => {
+      lines.push([
+        r.receipt, r.name, r.adminMemo, r.phone, r.startDate, r.writtenDate,
+        r.completedAt, r.status, r.pdfUrl
+      ].map(csvSafe).join(","));
+    });
+
+    const blob = new Blob(["\uFEFF" + lines.join("\r\n")], {type:"text/csv;charset=utf-8;"});
+    const url = URL.createObjectURL(blob);
+    const now = new Date();
+    const pad = n => String(n).padStart(2, "0");
+    const stamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `근로계약목록_${stamp}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    dashboardMessage.textContent = `현재 조건의 근로계약 ${rows.length}건을 엑셀용 파일로 다운로드했습니다.`;
+  }
+
   function render() {
     const rows = filteredRecords();
     emptyState.hidden = rows.length > 0;
@@ -189,6 +227,7 @@
     passwordInput.value = "";
     showLogin();
   });
+  document.getElementById("excelButton").addEventListener("click", downloadExcelCsv);
   document.getElementById("refreshButton").addEventListener("click", () => loadContracts(activePassword));
   searchInput.addEventListener("input", render);
   statusFilter.addEventListener("change", render);
