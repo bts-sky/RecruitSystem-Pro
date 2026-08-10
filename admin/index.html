@@ -102,8 +102,44 @@
         </form>
       </div>
     </section>
+
+    <section id="contractCompanyModal" class="edit-modal" hidden aria-hidden="true">
+      <div class="edit-backdrop" data-close-contract-company></div>
+      <div class="edit-dialog contract-company-dialog" role="dialog" aria-modal="true" aria-labelledby="contractCompanyTitle">
+        <div class="edit-head">
+          <div>
+            <p class="eyebrow">업체별 근로계약서</p>
+            <h2 id="contractCompanyTitle">계약 업체 선택</h2>
+          </div>
+          <button type="button" id="contractCompanyCloseButton" class="secondary">닫기</button>
+        </div>
+        <input type="hidden" id="contractCompanyReceipt">
+        <p id="contractCompanyApplicant" class="contract-company-applicant"></p>
+        <label class="contract-company-label">
+          <span>근로계약 업체</span>
+          <select id="contractCompanySelect">
+            <option value="">업체를 선택하세요</option>
+            <option value="DK산업">DK산업</option>
+            <option value="NB화성">NB화성</option>
+            <option value="SF">SF</option>
+            <option value="엘티와이 남">엘티와이 남</option>
+            <option value="엘티와이 여">엘티와이 여</option>
+            <option value="진솔">진솔</option>
+            <option value="우리기업">우리기업</option>
+            <option value="우리원">우리원</option>
+            <option value="동광엔비텍">동광엔비텍</option>
+          </select>
+        </label>
+        <p class="edit-note">업체를 선택하면 해당 업체 원본 계약문구가 열립니다. 근무기간 등은 계약서를 연 뒤 관리자 수정에서 필요한 부분만 바꾼 후 링크를 생성하세요.</p>
+        <p id="contractCompanyMessage" class="message" aria-live="polite"></p>
+        <div class="edit-actions">
+          <button type="button" id="contractCompanyCancelButton" class="secondary">취소</button>
+          <button type="button" id="contractCompanyOpenButton" class="primary">계약서 열기</button>
+        </div>
+      </div>
+    </section>
   </main>
-  <script src="../js/config.js?v=20260804-delete1"></script>
-  <script src="admin.js?v=20260804-delete1"></script>
+  <script src="../js/config.js?v=20260810-company1"></script>
+  <script src="admin.js?v=20260810-company1"></script>
 </body>
 </html>
