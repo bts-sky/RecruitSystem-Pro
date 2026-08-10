@@ -74,6 +74,11 @@
     emptyState.hidden = rows.length > 0;
     list.innerHTML = rows.map(r => {
       const completed = r.status === "완료";
+      const phoneRaw = String(r.phone || "").trim();
+      const phoneHref = phoneRaw.replace(/[^0-9+]/g, "");
+      const contactButtons = phoneHref
+        ? `<a class="contact-button call" href="tel:${esc(phoneHref)}">전화</a><a class="contact-button sms" href="sms:${esc(phoneHref)}">문자</a>`
+        : `<span class="contact-button disabled">연락처 없음</span>`;
       const pdfButton = r.pdfUrl
         ? `<a class="pdf-button" href="${esc(r.pdfUrl)}" target="_blank" rel="noopener">계약 PDF 보기</a>`
         : `<span class="pdf-button disabled">PDF 없음</span>`;
@@ -101,6 +106,7 @@
             <div class="detail"><span>완료일시</span><strong>${formatDate(r.completedAt)}</strong></div>
           </div>
           <div class="card-actions">
+            <div class="contact-actions">${contactButtons}</div>
             ${pdfButton}
             <span class="completion ${completed ? "done" : "waiting"}">${completed ? "계약 작성 완료" : "계약 작성 대기"}</span>
           </div>
