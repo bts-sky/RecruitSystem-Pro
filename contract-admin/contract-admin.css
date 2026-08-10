@@ -3,3 +3,5 @@
 .contact-actions{display:flex;gap:7px;margin-right:auto}.contact-button{display:inline-flex;align-items:center;justify-content:center;min-width:68px;padding:11px 14px;border-radius:12px;font-weight:800;text-decoration:none}.contact-button.call{background:#e7f8ee;color:#13703d}.contact-button.call:hover{background:#d9f2e4}.contact-button.sms{background:#edf4ff;color:#1764d4}.contact-button.sms:hover{background:#dfeaff}.contact-button.disabled{background:#eef1f5;color:#8a93a3;pointer-events:none}@media(max-width:720px){.contact-actions{width:100%;margin-right:0}.contact-button{flex:1}.card-actions{align-items:stretch}}
 
 .toolbar-actions{display:flex;gap:8px;align-items:center}.excel-button{background:#16794b;color:#fff;white-space:nowrap}.excel-button:hover{background:#11643e}@media(max-width:720px){.toolbar-actions{display:grid;grid-template-columns:1fr 1fr}.toolbar-actions button{width:100%}}
+
+.delete-button{border:0;padding:11px 14px;border-radius:12px;background:#fdebec;color:#b42318;font-weight:800;cursor:pointer}.delete-button:hover{background:#fbd5d8}.delete-button:disabled{opacity:.6;cursor:wait}@media(max-width:720px){.delete-button{width:100%}}

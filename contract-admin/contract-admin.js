@@ -147,6 +147,7 @@
             <div class="contact-actions">${contactButtons}</div>
             ${pdfButton}
             <span class="completion ${completed ? "done" : "waiting"}">${completed ? "계약 작성 완료" : "계약 작성 대기"}</span>
+            <button type="button" class="delete-button" data-receipt="${esc(r.receipt || "")}" data-name="${esc(r.name || "근로계약")}">삭제</button>
           </div>
         </article>`;
     }).join("");
@@ -170,6 +171,27 @@
       dashboardMessage.textContent = error.message;
     } finally {
       button.disabled = false;
+    }
+  }
+
+  async function deleteContract(record, button) {
+    if (!record) return;
+    const name = record.name || "근로계약";
+    const receipt = record.receipt || "접수번호 없음";
+    if (!window.confirm(`${name} (${receipt}) 근로계약을 삭제하시겠습니까?\n\n스프레드시트 행이 삭제되고 해당 계약 폴더는 Drive 휴지통으로 이동합니다.`)) return;
+    if (!window.confirm("정말 삭제하시겠습니까? 관리자 목록에서 즉시 제거됩니다.")) return;
+
+    const original = button?.textContent || "삭제";
+    if (button) { button.disabled = true; button.textContent = "삭제중"; }
+    dashboardMessage.textContent = `${name} 근로계약을 삭제하는 중입니다...`;
+    try {
+      const data = await jsonp({action:"adminContractDelete", password:activePassword, receipt:record.receipt || ""});
+      if (!data.ok) throw new Error(data.message || "삭제에 실패했습니다.");
+      await loadContracts(activePassword);
+      dashboardMessage.textContent = data.message || `${name} 근로계약이 삭제되었습니다.`;
+    } catch (error) {
+      dashboardMessage.textContent = error.message;
+      if (button && button.isConnected) { button.disabled = false; button.textContent = original; }
     }
   }
 
@@ -199,6 +221,13 @@
   }
 
   list.addEventListener("click", e => {
+    const deleteButton = e.target.closest(".delete-button");
+    if (deleteButton) {
+      const receipt = deleteButton.dataset.receipt || "";
+      const record = records.find(r => r.receipt === receipt);
+      deleteContract(record, deleteButton);
+      return;
+    }
     const button = e.target.closest(".memo-save");
     if (!button) return;
     const receipt = button.dataset.receipt || "";
