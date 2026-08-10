@@ -59,7 +59,7 @@
     const q = searchInput.value.trim().toLowerCase();
     const status = statusFilter.value;
     return records.filter(r => {
-      const hay = `${r.name || ""} ${r.phone || ""} ${r.receipt || ""}`.toLowerCase();
+      const hay = `${r.name || ""} ${r.adminMemo || ""} ${r.phone || ""} ${r.receipt || ""}`.toLowerCase();
       return (!q || hay.includes(q)) && (!status || r.status === status);
     });
   }
@@ -81,7 +81,15 @@
         <article class="contract-card">
           <div class="card-head">
             <div>
-              <div class="name">${esc(r.name || "이름 없음")}</div>
+              <div class="name-row">
+                <div class="name">${esc(r.name || "이름 없음")}</div>
+                <div class="memo-editor">
+                  <span class="memo-paren">(</span>
+                  <input class="memo-input" data-receipt="${esc(r.receipt || "")}" value="${esc(r.adminMemo || "")}" maxlength="120" placeholder="관리자 메모">
+                  <span class="memo-paren">)</span>
+                  <button type="button" class="memo-save" data-receipt="${esc(r.receipt || "")}">저장</button>
+                </div>
+              </div>
               <div class="receipt">${esc(r.receipt || "접수번호 없음")}</div>
             </div>
             <span class="status" data-status="${esc(r.status || "대기")}">${esc(r.status || "대기")}</span>
@@ -98,6 +106,27 @@
           </div>
         </article>`;
     }).join("");
+  }
+
+  async function saveMemo(receipt, input, button) {
+    if (!receipt || !input || !button) return;
+    const original = button.textContent;
+    button.disabled = true;
+    button.textContent = "저장중";
+    try {
+      const data = await jsonp({action:"adminContractMemoSave", password:activePassword, receipt, memo:input.value.trim()});
+      if (!data.ok) throw new Error(data.message || "메모 저장에 실패했습니다.");
+      const record = records.find(r => r.receipt === receipt);
+      if (record) record.adminMemo = data.memo || "";
+      button.textContent = "저장됨";
+      dashboardMessage.textContent = `${record?.name || receipt} 관리자 메모를 저장했습니다.`;
+      setTimeout(() => { if (button.isConnected) button.textContent = original; }, 1200);
+    } catch (error) {
+      button.textContent = "재시도";
+      dashboardMessage.textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
   }
 
   async function loadContracts(password, isLogin = false) {
@@ -124,6 +153,21 @@
       }
     }
   }
+
+  list.addEventListener("click", e => {
+    const button = e.target.closest(".memo-save");
+    if (!button) return;
+    const receipt = button.dataset.receipt || "";
+    const input = list.querySelector(`.memo-input[data-receipt="${CSS.escape(receipt)}"]`);
+    saveMemo(receipt, input, button);
+  });
+  list.addEventListener("keydown", e => {
+    if (e.key !== "Enter" || !e.target.classList.contains("memo-input")) return;
+    e.preventDefault();
+    const receipt = e.target.dataset.receipt || "";
+    const button = list.querySelector(`.memo-save[data-receipt="${CSS.escape(receipt)}"]`);
+    saveMemo(receipt, e.target, button);
+  });
 
   loginForm.addEventListener("submit", e => {
     e.preventDefault();
