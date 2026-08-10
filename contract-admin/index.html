@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <title>하늘컴퍼니 근로계약 관리자</title>
+  <link rel="stylesheet" href="contract-admin.css?v=1.0.0">
+</head>
+<body>
+  <main class="shell">
+    <section id="loginView" class="login-card">
+      <div class="brand-mark">H</div>
+      <p class="eyebrow">EMPLOYMENT CONTRACT</p>
+      <h1>근로계약 관리자</h1>
+      <p class="subtext">기존 지원자 관리자와 같은 관리자 비밀번호를 입력해 주세요.</p>
+      <form id="loginForm">
+        <label for="password">관리자 비밀번호</label>
+        <div class="password-row">
+          <input id="password" type="password" autocomplete="current-password" required placeholder="비밀번호 입력">
+          <button type="button" id="togglePassword" class="secondary">보기</button>
+        </div>
+        <button type="submit" id="loginButton" class="primary">로그인</button>
+        <p id="loginMessage" class="message" aria-live="polite"></p>
+      </form>
+      <a class="back-link" href="../admin/index.html">← 지원자 관리로 돌아가기</a>
+    </section>
+
+    <section id="dashboardView" class="dashboard" hidden>
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">하늘컴퍼니</p>
+          <h1>근로계약 관리</h1>
+        </div>
+        <button id="logoutButton" class="secondary">로그아웃</button>
+      </header>
+
+      <section class="stats" aria-label="근로계약 현황">
+        <article><span>전체</span><strong id="totalCount">0</strong></article>
+        <article><span>대기</span><strong id="waitingCount">0</strong></article>
+        <article><span>완료</span><strong id="completedCount">0</strong></article>
+        <article><span>PDF 생성</span><strong id="pdfCount">0</strong></article>
+      </section>
+
+      <section class="toolbar">
+        <label class="search-box" for="searchInput">
+          <span>검색</span>
+          <input id="searchInput" type="search" placeholder="이름, 연락처, 접수번호 검색">
+        </label>
+        <label for="statusFilter">
+          <span>상태</span>
+          <select id="statusFilter">
+            <option value="">전체 상태</option>
+            <option value="대기">대기</option>
+            <option value="완료">완료</option>
+            <option value="오류">오류</option>
+          </select>
+        </label>
+        <button id="refreshButton" class="secondary">새로고침</button>
+      </section>
+
+      <p id="dashboardMessage" class="message info" aria-live="polite"></p>
+      <div id="contractList" class="contract-list"></div>
+      <div id="emptyState" class="empty" hidden>조건에 맞는 근로계약이 없습니다.</div>
+      <footer>근로계약 관리자 v1.0 · 목록 / 상태 / PDF 보기</footer>
+    </section>
+  </main>
+
+  <script src="../js/config.js?v=20260810-contract-admin"></script>
+  <script src="contract-admin.js?v=1.0.0"></script>
+</body>
+</html>
