@@ -5,3 +5,5 @@
 .toolbar-actions{display:flex;gap:8px;align-items:center}.excel-button{background:#16794b;color:#fff;white-space:nowrap}.excel-button:hover{background:#11643e}@media(max-width:720px){.toolbar-actions{display:grid;grid-template-columns:1fr 1fr}.toolbar-actions button{width:100%}}
 
 .delete-button{border:0;padding:11px 14px;border-radius:12px;background:#fdebec;color:#b42318;font-weight:800;cursor:pointer}.delete-button:hover{background:#fbd5d8}.delete-button:disabled{opacity:.6;cursor:wait}@media(max-width:720px){.delete-button{width:100%}}
+
+.topbar-actions{display:flex;align-items:center;gap:8px}.admin-switch{display:inline-flex;align-items:center;justify-content:center;padding:12px 16px;border-radius:12px;background:#1764d4;color:#fff;font-weight:800;text-decoration:none;white-space:nowrap}.admin-switch:hover{background:#0f55ba}@media(max-width:520px){.topbar{align-items:flex-start;gap:12px}.topbar-actions{flex-direction:column;align-items:stretch}.admin-switch,.topbar-actions .secondary{padding:10px 12px;text-align:center}}
