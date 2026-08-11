@@ -163,9 +163,22 @@ body.contract-complete #contractFormPanel input,body.contract-complete #contract
 
 
 @media print{
- body.worker-copy-print *{visibility:hidden!important}
- body.worker-copy-print #paper,body.worker-copy-print #paper *{visibility:visible!important}
- body.worker-copy-print #paper{position:absolute!important;left:0!important;top:0!important;margin:0!important;box-shadow:none!important}
+  body.worker-copy-print *{visibility:hidden!important}
+  body.worker-copy-print .paper,
+  body.worker-copy-print .paper *{visibility:visible!important}
+  body.worker-copy-print .paper{
+    position:absolute!important;
+    left:0!important;
+    top:0!important;
+    width:210mm!important;
+    min-height:297mm!important;
+    margin:0!important;
+    box-shadow:none!important;
+    background:#fff!important;
+  }
+  body.worker-copy-print .editor,
+  body.worker-copy-print #recipientBanner,
+  body.worker-copy-print .message{display:none!important}
 }
 
 </style>
@@ -189,7 +202,7 @@ body.contract-complete #contractFormPanel input,body.contract-complete #contract
   <button id="print" class="primary admin-only" type="button">PDF 저장 / 인쇄</button>
   <button id="createContractLink" class="primary admin-only" type="button">계약링크 생성 / 복사</button>
   <button id="submitContract" class="primary recipient-only" type="button" style="display:none">근로계약서 작성 완료</button>
-<button id="workerCopyPdf" class="primary recipient-only" type="button" style="display:none;margin-top:8px">근로계약서 사본 PDF 저장</button>
+<button id="workerCopyPdf" class="primary recipient-only" type="button" style="display:none;margin-top:8px">근로계약서 사본 보기 / PDF 저장</button>
 <div id="workerCopyGuide" class="recipient-only" style="display:none;margin-top:8px;font-size:12px;line-height:1.5;color:#334155">서명이 포함된 최종 근로계약서 사본입니다. PDF로 저장해 보관해 주세요.</div>
 </div>
 
@@ -723,15 +736,14 @@ async function submitEmploymentContract(){
     btn.textContent='작성 완료';
     btn.disabled=true;
 
-    if(saved.pdfUrl && !document.getElementById('completedContractPdf')){
-      const a=document.createElement('a');
+    if(!document.getElementById('completedContractPdf')){
+      const a=document.createElement('button');
       a.id='completedContractPdf';
-      a.href=saved.pdfUrl;
-      a.target='_blank';
-      a.rel='noopener noreferrer';
-      a.textContent='완성된 계약서 PDF 보기';
+      a.type='button';
+      a.textContent='완성된 계약서 보기 / PDF 저장';
       a.className='primary';
       a.style.marginLeft='8px';
+      a.onclick=saveWorkerContractCopy;
       btn.parentNode.appendChild(a);
     }
   }catch(e){
