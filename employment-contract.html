@@ -396,7 +396,15 @@ document.getElementById('print').onclick=()=>{sync();sigSync();window.print()};
 async function createAdminContractLink(){
   const btn=document.getElementById('createContractLink');
   const msg=document.getElementById('contractSubmitMessage');
-  const password=sessionStorage.getItem('recruitAdminPasswordV10161')||'';
+  let password=sessionStorage.getItem('recruitAdminPasswordV10161')||'';
+  if(!password){
+    try{
+      if(window.opener && window.opener.location.origin===location.origin){
+        password=window.opener.sessionStorage.getItem('recruitAdminPasswordV10161')||'';
+        if(password) sessionStorage.setItem('recruitAdminPasswordV10161',password);
+      }
+    }catch(_){}
+  }
   const receipt=qp.get('receipt')||'';
   if(!password){setContractMessage('지원자 관리자에서 로그인한 뒤 다시 열어 주세요.','error');return;}
   if(!receipt){setContractMessage('접수번호가 없어 계약링크를 만들 수 없습니다.','error');return;}

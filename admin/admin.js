@@ -128,7 +128,7 @@
     url.searchParams.set("address", applicant["주소"] || "");
     url.searchParams.set("startDate", applicant["출근 가능일"] || "");
     url.searchParams.set("receipt", applicant["접수번호"] || "");
-    window.open(url.toString(), "_blank", "noopener");
+    window.open(url.toString(), "_blank");
     closeContractCompanyModal();
   }
 
