@@ -136,6 +136,22 @@ body.contract-complete #contractFormPanel input,body.contract-complete #contract
 .contract-submit-message.is-success{background:#edf9f0;color:#176b35}
 .contract-submit-message.is-error{background:#fff0f0;color:#b42318}
 
+
+.admin-period-box{margin:14px 0;padding:13px;border:2px solid #1764d4;border-radius:10px;background:#f4f8ff}
+.admin-period-box strong{display:block;margin-bottom:7px;font-size:14px;color:#174ea6}
+.admin-period-box textarea{width:100%;min-height:64px;box-sizing:border-box;border:1px solid #9bb7df;border-radius:7px;padding:9px;font:inherit;font-size:12px;line-height:1.45;background:#fff}
+.admin-period-help{margin-top:6px;font-size:11px;line-height:1.45;color:#52606d}
+.final-review{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px}
+.final-review[hidden]{display:none}
+.final-review-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.48)}
+.final-review-card{position:relative;width:min(760px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:14px;padding:20px;box-shadow:0 18px 60px rgba(0,0,0,.28)}
+.final-review-card h3{margin:0 0 12px;font-size:20px}
+.final-review-summary{display:grid;grid-template-columns:120px 1fr;gap:7px 12px;padding:12px;background:#f6f8fb;border-radius:9px;font-size:13px}
+.final-review-summary b{color:#344054}
+.final-review-period{margin-top:12px;padding:11px;border:2px solid #1764d4;border-radius:9px;background:#f4f8ff;white-space:pre-wrap;font-size:13px;font-weight:700}
+.final-review-text{margin-top:12px;border:1px solid #ddd;border-radius:9px;padding:10px;max-height:260px;overflow:auto;white-space:pre-wrap;font-size:11px;line-height:1.5}
+.final-review-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+
 </style>
 </head>
 <body>
@@ -165,6 +181,11 @@ body.contract-complete #contractFormPanel input,body.contract-complete #contract
   <div class="note" style="margin-bottom:8px">
     아래 내용은 관리자만 수정하는 영역입니다. 수정은 현재 작성 중인 계약서에만 적용되며, 기본 원문은 '원본 복원'으로 되돌릴 수 있습니다.
   </div>
+  <div class="admin-period-box">
+    <strong>근무기간 / 계약기간 빠른 수정</strong>
+    <textarea id="periodQuickEdit" placeholder="계약서에서 근로기간 또는 계약기간 문구를 자동으로 찾아 표시합니다."></textarea>
+    <div class="admin-period-help">여기서 기간 문구를 수정한 뒤 아래 「현재 계약서에 적용」을 누르면 해당 기간 줄만 계약서에 반영됩니다. 업체 원본은 변경되지 않습니다.</div>
+  </div>
   <div class="f">
     <label>근로계약서 내용</label>
     <textarea id="contractEdit" style="width:100%;height:250px;border:1px solid #aaa;border-radius:6px;padding:8px;font-size:12px;line-height:1.45"></textarea>
@@ -182,6 +203,24 @@ body.contract-complete #contractFormPanel input,body.contract-complete #contract
 <div class="note">선택한 업체의 원본 근로계약 문구와 안전수칙 문구를 불러옵니다. 근무기간 등 지원자별로 달라지는 내용은 관리자 수정에서 확인·수정한 뒤 계약링크를 생성하세요.</div>
 <div id="contractSubmitMessage" class="contract-submit-message" aria-live="polite"></div>
 </aside>
+
+<div id="finalReviewModal" class="final-review" hidden aria-hidden="true">
+  <div class="final-review-backdrop" data-close-final-review></div>
+  <section class="final-review-card" role="dialog" aria-modal="true" aria-labelledby="finalReviewTitle">
+    <h3 id="finalReviewTitle">계약 발송 전 최종 확인</h3>
+    <div class="final-review-summary">
+      <b>업체</b><span id="reviewCompany"></span>
+      <b>지원자</b><span id="reviewName"></span>
+      <b>입사일</b><span id="reviewStartDate"></span>
+    </div>
+    <div id="reviewPeriod" class="final-review-period"></div>
+    <div id="reviewContractText" class="final-review-text"></div>
+    <div class="final-review-actions">
+      <button id="finalReviewCancel" type="button" class="secondary">돌아가서 수정</button>
+      <button id="finalReviewConfirm" type="button" class="primary">확인 후 계약링크 생성</button>
+    </div>
+  </section>
+</div>
 
 <main class="paper">
 <h1 class="title">근 로 계 약 서</h1>
@@ -384,7 +423,7 @@ async function copyContractText(text){
   if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(text);
   const area=document.createElement('textarea');area.value=text;area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();document.execCommand('copy');area.remove();
 }
-document.getElementById('createContractLink').onclick=createAdminContractLink;
+
 
 const contractSource=document.getElementById('contractSource');
 const safetySource=document.getElementById('safetySource');
@@ -423,6 +462,7 @@ function applyCompanyPreset(company){
   const se=document.getElementById('safetyEdit');
   if(ce)ce.value=sourceText(contractSource);
   if(se)se.value=sourceText(safetySource);
+  if(typeof refreshPeriodQuickEdit==='function') refreshPeriodQuickEdit();
 }
 
 
@@ -444,6 +484,59 @@ document.getElementById('restoreContract').onclick=()=>{
   safetySource.innerHTML=originalSafetyHTML;
   contractEdit.value=sourceText(contractSource);
   safetyEdit.value=sourceText(safetySource);
+};
+
+
+function findPeriodLine(text){
+  const lines=(text||'').split(/\r?\n/);
+  return lines.find(line=>/(근로\s*기간|근무\s*기간|계약\s*기간)/.test(line))||'';
+}
+function refreshPeriodQuickEdit(){
+  const box=document.getElementById('periodQuickEdit');
+  if(box) box.value=findPeriodLine(contractEdit.value||sourceText(contractSource));
+}
+function applyPeriodQuickEdit(){
+  const box=document.getElementById('periodQuickEdit');
+  const value=(box?.value||'').trim();
+  if(!value) return;
+  const lines=(contractEdit.value||'').split(/\r?\n/);
+  const idx=lines.findIndex(line=>/(근로\s*기간|근무\s*기간|계약\s*기간)/.test(line));
+  if(idx>=0) lines[idx]=value;
+  else lines.unshift(value);
+  contractEdit.value=lines.join('\n');
+}
+refreshPeriodQuickEdit();
+
+const originalApplyContract=document.getElementById('applyContract').onclick;
+document.getElementById('applyContract').onclick=()=>{
+  applyPeriodQuickEdit();
+  originalApplyContract();
+  setContractMessage('수정한 계약내용을 현재 계약서에 적용했습니다. 발송 전 최종 확인을 진행해 주세요.','success');
+};
+document.getElementById('restoreContract').addEventListener('click',()=>setTimeout(refreshPeriodQuickEdit,0));
+
+function openFinalReview(){
+  applyPeriodQuickEdit();
+  renderEdited(contractSource,'근 로 계 약 서',contractEdit.value);
+  renderEdited(safetySource,'안전수칙 서약서',safetyEdit.value);
+  document.getElementById('reviewCompany').textContent=selectedCompany;
+  document.getElementById('reviewName').textContent=document.getElementById('name').value||'-';
+  document.getElementById('reviewStartDate').textContent=document.getElementById('startDate').value||'-';
+  document.getElementById('reviewPeriod').textContent=findPeriodLine(contractEdit.value)||'기간 문구를 찾지 못했습니다. 계약서 본문을 다시 확인해 주세요.';
+  document.getElementById('reviewContractText').textContent=contractEdit.value;
+  const modal=document.getElementById('finalReviewModal');
+  modal.hidden=false; modal.setAttribute('aria-hidden','false');
+}
+function closeFinalReview(){
+  const modal=document.getElementById('finalReviewModal');
+  modal.hidden=true; modal.setAttribute('aria-hidden','true');
+}
+document.getElementById('createContractLink').onclick=openFinalReview;
+document.getElementById('finalReviewCancel').onclick=closeFinalReview;
+document.querySelector('[data-close-final-review]').onclick=closeFinalReview;
+document.getElementById('finalReviewConfirm').onclick=async()=>{
+  closeFinalReview();
+  await createAdminContractLink();
 };
 
 
