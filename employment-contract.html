@@ -152,6 +152,11 @@ body.contract-complete #contractFormPanel input,body.contract-complete #contract
 .final-review-text{margin-top:12px;border:1px solid #ddd;border-radius:9px;padding:10px;max-height:260px;overflow:auto;white-space:pre-wrap;font-size:11px;line-height:1.5}
 .final-review-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
 
+
+#adminEditorDetails > summary::-webkit-details-marker{display:none}
+#adminEditorDetails > summary::marker{content:''}
+#adminEditorDetails[open] > summary{background:#e7eef9}
+
 </style>
 </head>
 <body>
@@ -176,8 +181,9 @@ body.contract-complete #contractFormPanel input,body.contract-complete #contract
 </div>
 
 <hr style="margin:16px 0;border:0;border-top:1px solid #ddd">
-<button id="adminToggle" class="admin-only" type="button" class="secondary" style="width:100%;font-weight:700">관리자 계약내용 수정</button>
-<div id="adminEditor" class="admin-only" style="display:none;margin-top:10px">
+<details id="adminEditorDetails" class="admin-only" style="margin-top:0">
+  <summary id="adminToggle" style="width:100%;box-sizing:border-box;font-weight:700;text-align:center;background:#f0f0f0;border-radius:6px;padding:10px;cursor:pointer;list-style:none">관리자 계약내용 수정</summary>
+<div id="adminEditor" style="margin-top:10px">
   <div class="note" style="margin-bottom:8px">
     아래 내용은 관리자만 수정하는 영역입니다. 수정은 현재 작성 중인 계약서에만 적용되며, 기본 원문은 '원본 복원'으로 되돌릴 수 있습니다.
   </div>
@@ -199,6 +205,7 @@ body.contract-complete #contractFormPanel input,body.contract-complete #contract
     <button id="restoreContract" type="button" class="secondary">원본 복원</button>
   </div>
 </div>
+</details>
 
 <div class="note">선택한 업체의 원본 근로계약 문구와 안전수칙 문구를 불러옵니다. 근무기간 등 지원자별로 달라지는 내용은 관리자 수정에서 확인·수정한 뒤 계약링크를 생성하세요.</div>
 <div id="contractSubmitMessage" class="contract-submit-message" aria-live="polite"></div>
@@ -471,10 +478,6 @@ const safetyEdit=document.getElementById('safetyEdit');
 contractEdit.value=sourceText(contractSource);
 safetyEdit.value=sourceText(safetySource);
 
-document.getElementById('adminToggle').onclick=()=>{
-  const p=document.getElementById('adminEditor');
-  p.style.display=p.style.display==='none'?'block':'none';
-};
 document.getElementById('applyContract').onclick=()=>{
   renderEdited(contractSource,'근 로 계 약 서',contractEdit.value);
   renderEdited(safetySource,'안전수칙 서약서',safetyEdit.value);
