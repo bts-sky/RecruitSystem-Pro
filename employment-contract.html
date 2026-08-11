@@ -493,17 +493,21 @@ function findPeriodLine(text){
 }
 function refreshPeriodQuickEdit(){
   const box=document.getElementById('periodQuickEdit');
-  if(box) box.value=findPeriodLine(contractEdit.value||sourceText(contractSource));
+  const editor=document.getElementById('contractEdit');
+  const source=document.getElementById('contractSource');
+  if(box && editor && source) box.value=findPeriodLine(editor.value||sourceText(source));
 }
 function applyPeriodQuickEdit(){
   const box=document.getElementById('periodQuickEdit');
-  const value=(box?.value||'').trim();
+  const editor=document.getElementById('contractEdit');
+  if(!box || !editor) return;
+  const value=(box.value||'').trim();
   if(!value) return;
-  const lines=(contractEdit.value||'').split(/\r?\n/);
+  const lines=(editor.value||'').split(/\r?\n/);
   const idx=lines.findIndex(line=>/(근로\s*기간|근무\s*기간|계약\s*기간)/.test(line));
   if(idx>=0) lines[idx]=value;
   else lines.unshift(value);
-  contractEdit.value=lines.join('\n');
+  editor.value=lines.join('\n');
 }
 refreshPeriodQuickEdit();
 
