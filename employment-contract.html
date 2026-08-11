@@ -393,9 +393,29 @@ document.getElementById('clear').onclick=()=>{ctx.clearRect(0,0,c.width,c.height
 
 document.getElementById('print').onclick=()=>{sync();sigSync();window.print()};
 
+function makeContractToken(){
+  try{
+    const a=new Uint8Array(24);
+    crypto.getRandomValues(a);
+    return Array.from(a,b=>b.toString(16).padStart(2,'0')).join('');
+  }catch(_){
+    return (Date.now().toString(36)+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)).padEnd(40,'0').slice(0,48);
+  }
+}
+async function waitForContractCreated(token,maxAttempts=20){
+  let lastError=null;
+  for(let i=0;i<maxAttempts;i++){
+    await new Promise(r=>setTimeout(r,500));
+    try{
+      const check=await contractJsonp({action:'getContract',token});
+      if(check && check.ok && check.contract) return check.contract;
+      if(check && check.message) lastError=new Error(check.message);
+    }catch(e){ lastError=e; }
+  }
+  throw lastError || new Error('근로계약 서버 저장 확인 시간이 초과되었습니다.');
+}
 async function createAdminContractLink(){
   const btn=document.getElementById('createContractLink');
-  const msg=document.getElementById('contractSubmitMessage');
   let password=sessionStorage.getItem('recruitAdminPasswordV10161')||'';
   if(!password){
     try{
@@ -408,11 +428,20 @@ async function createAdminContractLink(){
   const receipt=qp.get('receipt')||'';
   if(!password){setContractMessage('지원자 관리자에서 로그인한 뒤 다시 열어 주세요.','error');return;}
   if(!receipt){setContractMessage('접수번호가 없어 계약링크를 만들 수 없습니다.','error');return;}
-  btn.disabled=true; btn.textContent='링크 생성 중...';
+
+  const endpoint=contractApiUrl();
+  if(!endpoint){setContractMessage('근로계약 서버 주소가 설정되지 않았습니다.','error');return;}
+
+  btn.disabled=true;
+  btn.textContent='링크 생성 중...';
+  setContractMessage('계약내용을 서버에 저장하는 중입니다...','working');
+
   try{
     const baseUrl=location.origin+location.pathname;
-    const data=await contractJsonp({
+    const token=makeContractToken();
+    const payload={
       action:'createContractLink',
+      token,
       password,
       receipt,
       name:document.getElementById('name').value||'',
@@ -423,15 +452,34 @@ async function createAdminContractLink(){
       contractText:sourceText(contractSource),
       safetyText:sourceText(safetySource),
       baseUrl
-    });
-    if(!data.ok)throw new Error(data.message||'계약링크 생성 실패');
-    await copyContractText(data.url);
+    };
+
+    // 계약 본문은 길어서 JSONP(GET) URL에 싣지 않고 POST 본문으로 전송한다.
+    // Apps Script의 cross-origin 응답은 직접 읽지 않고, 짧은 token 조회로 저장 여부를 확인한다.
+    try{
+      await fetch(endpoint,{
+        method:'POST',
+        mode:'no-cors',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify(payload)
+      });
+    }catch(fetchError){
+      console.warn('POST 전송 응답을 직접 확인할 수 없어 token 조회를 계속합니다.',fetchError);
+    }
+
+    const saved=await waitForContractCreated(token);
+    if(!saved) throw new Error('근로계약 서버 저장을 확인하지 못했습니다.');
+
+    const url=baseUrl+(baseUrl.includes('?')?'&':'?')+'mode=sign&token='+encodeURIComponent(token);
+    await copyContractText(url);
     setContractMessage(`${selectedCompany} 계약링크를 생성하고 복사했습니다. 지원자에게 발송하면 됩니다.`,'success');
     btn.textContent='링크 복사 완료';
     setTimeout(()=>{btn.textContent='계약링크 생성 / 복사';btn.disabled=false;},1800);
   }catch(err){
+    console.error(err);
     setContractMessage('계약링크 생성 실패: '+(err.message||'다시 시도해 주세요.'),'error');
-    btn.textContent='계약링크 생성 / 복사';btn.disabled=false;
+    btn.textContent='계약링크 생성 / 복사';
+    btn.disabled=false;
   }
 }
 async function copyContractText(text){
