@@ -128,3 +128,35 @@
 .details-panel>.form-row,.details-panel>.form-group{margin-top:12px}
 .compact-fields .form-group{margin-bottom:0}
 @media(max-width:520px){.work-type-grid{grid-template-columns:repeat(3,1fr)}}
+
+
+/* v2.3.1: 입사지원서 가독성 개선 - 기존 레이아웃 유지, 글자 크기만 확대 */
+body{font-size:17px;line-height:1.5}
+.brand-row span{font-size:14px}
+.app-header h1{font-size:28px}
+.progress-info{font-size:16px}
+.section-heading span{font-size:14px}
+.section-heading h2{font-size:26px}
+.section-heading p{font-size:16px;line-height:1.55}
+.form-group label,.form-group legend{font-size:17px}
+.form-group input,.form-group textarea,.form-group select{font-size:17px}
+.choice-grid span{font-size:16px}
+.field-error{font-size:14px}
+.btn{font-size:16px}
+.btn.small{font-size:14px}
+.career-card h3,.upload-card h3,.preview-card h3{font-size:18px}
+.hint,.photo-result p,.file-item span{font-size:15px;line-height:1.5}
+.insurance-guide{font-size:16px}
+.insurance-choice strong{font-size:17px}
+.insurance-choice small{font-size:15px}
+.information-box p{font-size:15px}
+.preview-row dt,.preview-row dd{font-size:16px}
+.modal-head p{font-size:15px}
+.zoom-control{font-size:16px}
+@media(max-width:520px){
+  body{font-size:17px}
+  .app-header h1{font-size:25px}
+  .section-heading h2{font-size:24px}
+  .form-group label,.form-group legend,.form-group input,.form-group textarea,.form-group select{font-size:17px}
+  .choice-grid span{font-size:16px}
+}
