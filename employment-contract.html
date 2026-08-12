@@ -530,13 +530,11 @@ document.getElementById('print').onclick=()=>{sync();sigSync();window.print()};
 
 function makeContractToken(){
   try{
-    const a=new Uint8Array(16);
+    const a=new Uint8Array(24);
     crypto.getRandomValues(a);
-    let s='';
-    a.forEach(b=>s+=String.fromCharCode(b));
-    return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    return Array.from(a,b=>b.toString(16).padStart(2,'0')).join('');
   }catch(_){
-    return (Date.now().toString(36)+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)).replace(/[^a-z0-9]/gi,'').slice(0,22);
+    return (Date.now().toString(36)+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)).replace(/[^a-z0-9]/gi,'').padEnd(48,'0').slice(0,48);
   }
 }
 async function waitForContractCreated(token,maxAttempts=20){
@@ -607,7 +605,10 @@ async function createAdminContractLink(){
     const saved=await waitForContractCreated(token);
     if(!saved) throw new Error('근로계약 서버 저장을 확인하지 못했습니다.');
 
-    const url=location.origin+'/c/?k='+encodeURIComponent(token);
+    const shortCode=saved.shortCode||'';
+    const url=shortCode
+      ? location.origin+'/c/?k='+encodeURIComponent(shortCode)
+      : baseUrl+(baseUrl.includes('?')?'&':'?')+'mode=sign&token='+encodeURIComponent(token);
     await copyContractText(url);
     setContractMessage(`${selectedCompany} 계약링크를 생성하고 복사했습니다. 지원자에게 발송하면 됩니다.`,'success');
     btn.textContent='링크 복사 완료';
