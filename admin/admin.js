@@ -85,8 +85,7 @@
     if (!rec.token) {
       throw new Error("먼저 「근로계약서」에서 업체를 선택하고 계약 내용을 확인한 뒤 계약링크를 생성해 주세요.");
     }
-    const baseUrl = new URL("../employment-contract.html", window.location.href).toString();
-    const url = baseUrl + (baseUrl.includes("?") ? "&" : "?") + "mode=sign&token=" + encodeURIComponent(rec.token);
+    const url = window.location.origin + "/c/?k=" + encodeURIComponent(rec.token);
     await copyText(url);
     return {ok:true,url};
   }
