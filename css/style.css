@@ -160,3 +160,30 @@ body{font-size:17px;line-height:1.5}
   .form-group label,.form-group legend,.form-group input,.form-group textarea,.form-group select{font-size:17px}
   .choice-grid span{font-size:16px}
 }
+
+/* v2.3.2: 가독성 2차 확대 - 기존 레이아웃/구조 유지 */
+body{font-size:18px;line-height:1.5}
+.brand-row span{font-size:15px}
+.progress-info{font-size:17px}
+.section-heading span{font-size:15px}
+.section-heading p{font-size:17px;line-height:1.55}
+.form-group label,.form-group legend{font-size:18px}
+.form-group input,.form-group textarea,.form-group select{font-size:18px}
+.choice-grid span{font-size:17px}
+.field-error{font-size:15px}
+.btn{font-size:17px}
+.btn.small{font-size:15px}
+.career-card h3,.upload-card h3,.preview-card h3{font-size:19px}
+.hint,.photo-result p,.file-item span{font-size:16px;line-height:1.5}
+.insurance-guide{font-size:17px}
+.insurance-choice strong{font-size:18px}
+.insurance-choice small{font-size:16px}
+.information-box p{font-size:16px}
+.preview-row dt,.preview-row dd{font-size:17px}
+.modal-head p{font-size:16px}
+.zoom-control{font-size:17px}
+@media(max-width:520px){
+  body{font-size:18px}
+  .form-group label,.form-group legend,.form-group input,.form-group textarea,.form-group select{font-size:18px}
+  .choice-grid span{font-size:17px}
+}
