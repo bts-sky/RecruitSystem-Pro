@@ -195,7 +195,7 @@
           <button type="button" class="contract-button contract-open-button" data-receipt="${escapeHtml(a["접수번호"] || "")}">근로계약서</button>
           <button type="button" class="secondary contract-link-button" data-receipt="${escapeHtml(a["접수번호"] || "")}">${contractRecords[a["접수번호"]]?.status === "완료" ? "계약완료" : "계약링크 복사"}</button>
           ${contractRecords[a["접수번호"]]?.pdfUrl ? `<a class="contract-button" href="${escapeHtml(contractRecords[a["접수번호"]].pdfUrl)}" target="_blank" rel="noopener noreferrer">계약 PDF</a>` : ""}
-          <button type="button" class="secondary edit-button" data-uuid="${escapeHtml(a["UUID"] || "")}" data-receipt="${escapeHtml(a["접수번호"] || "")}">내용 수정</button>
+          <button type="button" class="secondary edit-button" data-uuid="${escapeHtml(a["UUID"] || "")}" data-receipt="${escapeHtml(a["접수번호"] || "")}">전체 수정</button>
           <button type="button" class="danger delete-button" data-uuid="${escapeHtml(a["UUID"] || "")}" data-receipt="${escapeHtml(a["접수번호"] || "")}" data-name="${escapeHtml(a["성명"] || "지원자")}">삭제</button>
         </div>
       </article>`).join("");
@@ -207,23 +207,50 @@
     if (element) element.value = value || "";
   }
 
+  function splitCareerValue(value) {
+    const parts = String(value || "").split(/\s+\/\s+/);
+    return {
+      company: parts[0] || "",
+      period: parts[1] || "",
+      job: parts[2] || "",
+      employmentType: parts[3] || "",
+      reason: parts.slice(4).join(" / ") || ""
+    };
+  }
+
   function openEditModal(applicant) {
-    setEditValue("editUuid", applicant["UUID"]);
-    setEditValue("editReceipt", applicant["접수번호"]);
-    setEditValue("editName", applicant["성명"]);
-    setEditValue("editPhone", applicant["연락처"]);
-    setEditValue("editBirthDate", applicant["생년월일"]);
-    setEditValue("editAge", applicant["나이"]);
-    setEditValue("editGender", applicant["성별"]);
-    setEditValue("editAddress", applicant["주소"]);
-    setEditValue("editEmergencyPhone", applicant["비상연락처"]);
-    setEditValue("editHealthStatus", applicant["건강상태"]);
-    setEditValue("editMedicalHistory", applicant["병력및특이사항"]);
-    setEditValue("editWorkType", applicant["가능 근무형태"]);
-    setEditValue("editCommuteType", applicant["출퇴근방법"]);
-    setEditValue("editShuttleLocation", applicant["통근버스탑승위치"]);
-    setEditValue("editAvailableStartDate", applicant["출근 가능일"]);
-    setEditValue("editWorkConditionNote", applicant["추가요청사항"]);
+    const values = {
+      editUuid: applicant["UUID"], editReceipt: applicant["접수번호"],
+      editName: applicant["성명"], editPhone: applicant["연락처"],
+      editBirthDate: applicant["생년월일"], editAge: applicant["나이"],
+      editGender: applicant["성별"], editMaritalStatus: applicant["결혼여부"],
+      editAddress: applicant["주소"], editNationality: applicant["국적"],
+      editVisa: applicant["비자"], editMilitaryStatus: applicant["병역사항"],
+      editMilitaryReason: applicant["병역사유"],
+      editEmergencyPhone: applicant["비상연락처"], editEmergencyRelation: applicant["비상연락처관계"],
+      editHealthStatus: applicant["건강상태"], editBloodType: applicant["혈액형"],
+      editCorrectedVision: applicant["교정시력"], editMedicalHistory: applicant["병력및특이사항"],
+      editGraduationYear: applicant["졸업년도"], editSchoolName: applicant["학교명"],
+      editWorkType: applicant["가능 근무형태"], editEmploymentType: applicant["근무형태"],
+      editOvertimeAvailable: applicant["잔업가능"], editWeekendAvailable: applicant["특근가능"],
+      editCommuteType: applicant["출퇴근방법"], editShuttleLocation: applicant["통근버스탑승위치"],
+      editInsurancePreference: applicant["희망 고용 방식"], editAvailableStartDate: applicant["출근 가능일"],
+      editHeight: applicant["키"], editWeight: applicant["몸무게"], editShoeSize: applicant["신발사이즈"],
+      editBankName: applicant["은행"], editAccountNumber: applicant["계좌번호"],
+      editAccountHolder: applicant["예금주"], editPrivacyConsent: applicant["개인정보동의"],
+      editWorkConditionNote: applicant["추가요청사항"]
+    };
+    Object.entries(values).forEach(([id, value]) => setEditValue(id, value));
+
+    for (let i = 1; i <= 3; i++) {
+      const c = splitCareerValue(applicant["경력" + i]);
+      setEditValue("editCareerCompany" + i, c.company);
+      setEditValue("editCareerPeriod" + i, c.period);
+      setEditValue("editCareerJob" + i, c.job);
+      setEditValue("editCareerEmploymentType" + i, c.employmentType);
+      setEditValue("editCareerReason" + i, c.reason);
+    }
+
     editMessage.textContent = "";
     editModal.hidden = false;
     editModal.setAttribute("aria-hidden", "false");
@@ -237,6 +264,17 @@
     document.body.classList.remove("modal-open");
   }
 
+  function careerPayload(index) {
+    const values = [
+      document.getElementById("editCareerCompany" + index).value.trim(),
+      document.getElementById("editCareerPeriod" + index).value.trim(),
+      document.getElementById("editCareerJob" + index).value.trim(),
+      document.getElementById("editCareerEmploymentType" + index).value.trim(),
+      document.getElementById("editCareerReason" + index).value.trim()
+    ];
+    return values.some(Boolean) ? values.join(" / ") : "";
+  }
+
   function editPayload() {
     return {
       action: "adminUpdate",
@@ -248,14 +286,36 @@
       birthDate: document.getElementById("editBirthDate").value,
       age: document.getElementById("editAge").value.trim(),
       gender: document.getElementById("editGender").value,
+      maritalStatus: document.getElementById("editMaritalStatus").value,
       address: document.getElementById("editAddress").value.trim(),
+      nationality: document.getElementById("editNationality").value.trim(),
+      visa: document.getElementById("editVisa").value.trim(),
+      militaryStatus: document.getElementById("editMilitaryStatus").value,
+      militaryReason: document.getElementById("editMilitaryReason").value.trim(),
       emergencyPhone: document.getElementById("editEmergencyPhone").value.trim(),
+      emergencyRelation: document.getElementById("editEmergencyRelation").value.trim(),
       healthStatus: document.getElementById("editHealthStatus").value,
+      bloodType: document.getElementById("editBloodType").value,
+      correctedVision: document.getElementById("editCorrectedVision").value.trim(),
       medicalHistory: document.getElementById("editMedicalHistory").value.trim(),
+      graduationYear: document.getElementById("editGraduationYear").value.trim(),
+      schoolName: document.getElementById("editSchoolName").value.trim(),
+      career1: careerPayload(1), career2: careerPayload(2), career3: careerPayload(3),
       workType: document.getElementById("editWorkType").value,
+      employmentType: document.getElementById("editEmploymentType").value.trim(),
+      overtimeAvailable: document.getElementById("editOvertimeAvailable").value,
+      weekendAvailable: document.getElementById("editWeekendAvailable").value,
       commuteType: document.getElementById("editCommuteType").value,
       shuttleLocation: document.getElementById("editShuttleLocation").value.trim(),
+      insurancePreference: document.getElementById("editInsurancePreference").value,
       availableStartDate: document.getElementById("editAvailableStartDate").value,
+      height: document.getElementById("editHeight").value.trim(),
+      weight: document.getElementById("editWeight").value.trim(),
+      shoeSize: document.getElementById("editShoeSize").value.trim(),
+      bankName: document.getElementById("editBankName").value.trim(),
+      accountNumber: document.getElementById("editAccountNumber").value.trim(),
+      accountHolder: document.getElementById("editAccountHolder").value.trim(),
+      privacyConsent: document.getElementById("editPrivacyConsent").value,
       workConditionNote: document.getElementById("editWorkConditionNote").value.trim()
     };
   }

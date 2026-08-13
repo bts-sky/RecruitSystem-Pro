@@ -25,3 +25,10 @@
 .contract-button:hover{background:#0f55ba}
 .contract-link-button{min-width:118px}
 @media(max-width:420px){.card-actions{display:grid;grid-template-columns:1fr 1fr}.contract-button,.contract-link-button,.pdf-button,.edit-button,.delete-button{width:100%;min-width:0}.card-actions .delete-button{grid-column:auto}}
+
+.edit-section-title{margin:8px 0 0;padding:11px 12px;border-radius:12px;background:#eef4ff;color:#173b72;font-size:15px;border:1px solid #d9e6fb}
+.career-edit-box{border:1px solid #dbe3ee;border-radius:14px;padding:12px;background:#f8fafc}
+.career-edit-box>strong{display:block;margin-bottom:10px;color:#1e3a5f}
+.career-edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.career-edit-grid .wide{grid-column:1/-1}
+@media(max-width:720px){.career-edit-grid{grid-template-columns:1fr}.career-edit-grid .wide{grid-column:auto}}
