@@ -151,8 +151,40 @@
     return url.toString();
   }
   async function copyText(text) {
-    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
-    const area=document.createElement("textarea"); area.value=text; area.style.position="fixed"; area.style.opacity="0"; document.body.appendChild(area); area.select(); document.execCommand("copy"); area.remove();
+    // PC/모바일 공통: 최신 Clipboard API를 먼저 시도하고,
+    // 모바일 브라우저에서 권한/정책 때문에 실패하면 기존 방식으로 자동 재시도합니다.
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return;
+      } catch (error) {
+        console.warn("Clipboard API 복사 실패, fallback 복사를 시도합니다.", error);
+      }
+    }
+
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.left = "-9999px";
+    area.style.top = "0";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+
+    area.focus();
+    area.select();
+    area.setSelectionRange(0, area.value.length);
+
+    let copied = false;
+    try {
+      copied = document.execCommand("copy");
+    } finally {
+      area.remove();
+    }
+
+    if (!copied) {
+      throw new Error("자동 복사가 차단되었습니다. 모바일 브라우저의 클립보드 권한을 확인해 주세요.");
+    }
   }
 
   function showDashboard() { loginView.hidden = true; dashboardView.hidden = false; }
