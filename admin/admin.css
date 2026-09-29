@@ -32,3 +32,32 @@
 .career-edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .career-edit-grid .wide{grid-column:1/-1}
 @media(max-width:720px){.career-edit-grid{grid-template-columns:1fr}.career-edit-grid .wide{grid-column:auto}}
+
+
+/* 담당자 메모 최소 기능: 이름 옆 상시 노출 */
+.applicant-title{min-width:0;flex:1}
+.name-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.inline-memo-button{
+  max-width:min(620px,68vw);
+  padding:5px 9px;
+  border:1px solid #d7deea;
+  border-radius:9px;
+  background:#f7f9fc;
+  color:#4a5568;
+  font-size:13px;
+  font-weight:800;
+  line-height:1.35;
+  text-align:left;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.inline-memo-button.has-memo{
+  background:#fff8df;
+  border-color:#efd88e;
+  color:#6d4b00;
+}
+.inline-memo-button:hover{filter:brightness(.98)}
+@media(max-width:720px){
+  .name-line{align-items:flex-start}
+  .inline-memo-button{max-width:100%}
+}

@@ -207,7 +207,17 @@
     list.innerHTML = filtered.map((a) => `
       <article class="applicant-card">
         <div class="card-head">
-          <div><div class="name">${escapeHtml(a["성명"] || "이름 없음")}</div><div class="receipt">${escapeHtml(a["접수번호"])}</div></div>
+          <div class="applicant-title">
+            <div class="name-line">
+              <div class="name">${escapeHtml(a["성명"] || "이름 없음")}</div>
+              <button type="button"
+                class="inline-memo-button ${a["담당자 메모"] ? "has-memo" : "no-memo"}"
+                data-uuid="${escapeHtml(a["UUID"] || "")}"
+                data-receipt="${escapeHtml(a["접수번호"] || "")}"
+                title="담당자 메모 입력/수정">${escapeHtml(a["담당자 메모"] || "+ 메모")}</button>
+            </div>
+            <div class="receipt">${escapeHtml(a["접수번호"])}</div>
+          </div>
           <span class="status" data-status="${escapeHtml(a["처리상태"])}">${escapeHtml(a["처리상태"] || "신규")}</span>
         </div>
         <div class="date">접수 ${escapeHtml(a["접수일시"])}</div>
@@ -232,6 +242,33 @@
         </div>
       </article>`).join("");
     emptyState.hidden = filtered.length !== 0;
+  }
+
+  async function editInlineMemo(applicant) {
+    const current = String(applicant["담당자 메모"] || "");
+    const next = window.prompt(
+      `${applicant["성명"] || "지원자"} 담당자 메모`,
+      current
+    );
+    if (next === null) return;
+
+    dashboardMessage.textContent = "메모 저장 중...";
+    try {
+      const data = await jsonp({
+        action: "adminMemoSave",
+        password: activePassword,
+        uuid: applicant["UUID"] || "",
+        receipt: applicant["접수번호"] || "",
+        memo: next
+      });
+      if (!data.ok) throw new Error(data.message || "메모 저장에 실패했습니다.");
+
+      applicant["담당자 메모"] = data.memo || "";
+      render();
+      dashboardMessage.textContent = "담당자 메모가 저장되었습니다.";
+    } catch (error) {
+      dashboardMessage.textContent = `메모 저장 실패: ${error.message}`;
+    }
   }
 
   function setEditValue(id, value) {
@@ -417,7 +454,7 @@
   document.getElementById("refreshButton").addEventListener("click", () => loadApplicants(activePassword));
   searchInput.addEventListener("input", render); statusFilter.addEventListener("change", render);
   list.addEventListener("click", (event) => {
-    const button = event.target.closest(".edit-button, .delete-button, .contract-open-button");
+    const button = event.target.closest(".inline-memo-button, .edit-button, .delete-button, .contract-open-button");
     if (!button) return;
     const applicant = applicants.find((item) =>
       (button.dataset.uuid && item["UUID"] === button.dataset.uuid) ||
@@ -426,6 +463,7 @@
     if (!applicant) return;
     if (button.classList.contains("delete-button")) deleteApplicant(applicant);
     else if (button.classList.contains("contract-open-button")) openContractCompanyModal(applicant);
+    else if (button.classList.contains("inline-memo-button")) editInlineMemo(applicant);
     else openEditModal(applicant);
   });
   editForm.addEventListener("submit", (event) => { event.preventDefault(); saveApplicantEdit(); });
